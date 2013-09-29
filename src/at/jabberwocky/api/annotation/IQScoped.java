@@ -5,6 +5,7 @@
  */
 package at.jabberwocky.api.annotation;
 
+import at.jabberwocky.spi.Trait;
 import java.lang.annotation.*;
 
 import javax.enterprise.context.NormalScope;
@@ -14,6 +15,7 @@ import javax.enterprise.context.NormalScope;
  * @author project
  */
 @NormalScope
+@Trait
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD})
 @Inherited

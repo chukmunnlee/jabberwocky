@@ -5,6 +5,7 @@
  */
 package at.jabberwocky.api.annotation;
 
+import at.jabberwocky.spi.Trait;
 import java.lang.annotation.*;
 
 import javax.inject.Qualifier;
@@ -14,6 +15,7 @@ import javax.inject.Qualifier;
  * @author project
  */
 @Qualifier
+@Trait
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER, ElementType.METHOD})
 public @interface Message {

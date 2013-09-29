@@ -5,6 +5,7 @@
  */
 package at.jabberwocky.api.annotation;
 
+import at.jabberwocky.spi.Trait;
 import java.lang.annotation.*;
 
 import javax.enterprise.context.NormalScope;
@@ -15,6 +16,7 @@ import javax.enterprise.context.NormalScope;
  */
 @NormalScope(passivating = true)
 @Retention(RetentionPolicy.RUNTIME)
+@Trait
 @Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD})
 @Inherited
 public @interface JIDScoped { 

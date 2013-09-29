@@ -5,6 +5,7 @@
  */
 package at.jabberwocky.api.annotation;
 
+import at.jabberwocky.spi.Trait;
 import java.lang.annotation.*;
 
 import javax.inject.Qualifier;
@@ -16,6 +17,7 @@ import javax.inject.Qualifier;
 @Qualifier
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER, ElementType.METHOD})
+@Trait
 public @interface Presence {
     //Parameter name
     public String value() default "";

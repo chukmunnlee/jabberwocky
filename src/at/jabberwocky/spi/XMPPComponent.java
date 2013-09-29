@@ -5,9 +5,17 @@
  */
 package at.jabberwocky.spi;
 
+import java.net.Socket;
+import java.util.Set;
+
 /**
  *
  * @author project
  */
 public interface XMPPComponent {    
+    
+    public void initialize(Set<Class<?>> handlers, SubdomainConfiguration config)
+            throws XMPPComponentException;
+	
+	public Socket connect() throws XMPPComponentException;
 }
