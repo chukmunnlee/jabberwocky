@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package at.jabberwocky.impl.core;
+package at.jabberwocky.impl.core.util;
 
 import at.jabberwocky.api.annotation.Order;
 

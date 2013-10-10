@@ -4,6 +4,7 @@
  */
 package at.jabberwocky.impl.core;
 
+import at.jabberwocky.impl.core.util.Utility;
 import at.jabberwocky.api.annotation.Order;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;

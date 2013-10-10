@@ -5,6 +5,7 @@
 
 package at.jabberwocky.impl.core;
 
+import at.jabberwocky.impl.core.util.ReflectionHelper;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.LinkedList;

@@ -12,7 +12,7 @@ import javax.enterprise.concurrent.ManagedExecutorService;
 import javax.servlet.annotation.WebListener;
 
 import static at.jabberwocky.api.Configurables.*;
-import static at.jabberwocky.impl.core.Utility.*;
+import static at.jabberwocky.impl.core.util.Utility.*;
 
 /**
  *

@@ -17,5 +17,5 @@ public interface XMPPComponent {
     public void initialize(Set<Class<?>> handlers, SubdomainConfiguration config)
             throws XMPPComponentException;
 	
-	public Socket connect() throws XMPPComponentException;
+	public void connect() throws XMPPComponentException;
 }

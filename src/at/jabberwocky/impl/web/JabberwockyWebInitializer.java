@@ -16,6 +16,7 @@ import javax.servlet.*;
 import javax.servlet.annotation.HandlesTypes;
 
 import static at.jabberwocky.api.Configurables.*;
+import at.jabberwocky.spi.*;
 import at.jabberwocky.spi.SubdomainConfiguration;
 import at.jabberwocky.spi.XMPPComponent;
 import java.io.BufferedInputStream;
@@ -40,21 +41,7 @@ public class JabberwockyWebInitializer implements ServletContainerInitializer {
             if (logger.isLoggable(Level.INFO))
                 logger.log(Level.INFO, "No XMPP message handler found. Not starting component");
             return;
-        }
-        
-        Set<Class<?>> messageHandlers = new HashSet<>();
-        Set<Class<?>> iqHandlers = new HashSet<>();
-        Set<Class<?>> presenceHandlers = new HashSet<>();
-        
-        for (Class<?> c: handlers)
-            if (c.isAnnotationPresent(Message.class))
-                messageHandlers.add(c);
-            else if (c.isAnnotationPresent(IQ.class))
-                iqHandlers.add(c);
-            else if (c.isAnnotationPresent(Presence.class))
-                presenceHandlers.add(c);
-            else
-                logger.log(Level.WARNING, "Unknown handler type: {0}", c.getName());
+        }        
         
         if (logger.isLoggable(Level.INFO))
             logger.log(Level.INFO, "Reading xep-0114.xml");
@@ -66,6 +53,17 @@ public class JabberwockyWebInitializer implements ServletContainerInitializer {
             logger.log(Level.INFO, "Instantiating {0}", componetnClassName);
         
         XMPPComponent xmppComponent = instantiateComponent(componetnClassName);
+        
+        try {
+            xmppComponent.initialize(handlers, config);
+            //Call pre connect
+            xmppComponent.connect();
+        } catch (XMPPComponentException ex) {
+            logger.log(Level.SEVERE, "Error during XMPPComponent initialization", ex);
+            throw new ServletException("Error during XMPPComponent initialization", ex);
+        }
+        
+        //Call post connect
         
         //Perform initialization of the thread pool
     }
@@ -88,8 +86,7 @@ public class JabberwockyWebInitializer implements ServletContainerInitializer {
         return (subdomainConfig);        
     }
     
-    private XMPPComponent instantiateComponent(final String name)
-            throws ServletException {
+    private XMPPComponent instantiateComponent(final String name) throws ServletException {
  
         Object instance = null;
         

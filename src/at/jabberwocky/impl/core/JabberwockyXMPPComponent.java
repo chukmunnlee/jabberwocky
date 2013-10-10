@@ -33,13 +33,13 @@ public class JabberwockyXMPPComponent implements XMPPComponent {
 	protected List<ClassNode> presenceHandlers = new LinkedList<ClassNode>();
 	
 	protected SubdomainConfiguration config;
-	protected Socket connection;
+	protected JabberwockyComponentConnection connection;
 
 	@Override
 	public void initialize(Set<Class<?>> handlers, SubdomainConfiguration config)
 			throws XMPPComponentException {
 		
-		this.config = config;
+		this.config = config;               
 
 		for (Class<?> c : handlers) {
 			ClassNode nh = null;
@@ -48,19 +48,10 @@ public class JabberwockyXMPPComponent implements XMPPComponent {
 		}
 	}
 
-	@Override
-	public Socket connect() throws XMPPComponentException {
-		try {
-		connection = new Socket(config.getDomain(), config.getPort());
-		connection.setSoTimeout(0);
-		return (connection);
-		} catch (IOException ex) {
-			logger.log(Level.SEVERE, "Cannnot connect to {0}:{1}"
-					, new Object[]{ config.getDomain(), config.getPort()});
-			throw new XMPPComponentException("Cannot connect to " 
-					+ config.getDomain() + ":" + config.getPort(), ex);
-		}
-	}
+    @Override
+    public void connect() throws XMPPComponentException {        
+        connection = new JabberwockyComponentConnection(config);        
+    }        
 		
 
 }
