@@ -232,12 +232,14 @@ public class JabberwockyComponentConnection implements Runnable {
             Packet in = inQueue.read();
             if (null == in)
                 continue;
+            if (logger.isLoggable(Level.FINER))
+                logger.log(Level.FINER, "Routing to component: {0}", in.toString());
             try {
                 result = xmppComponent.processPacket(in);
                 if ((null != result) || (result.size() > 0))
                     for (Packet p: result) {
-                    if (logger.isLoggable(Level.FINE))
-                        logger.log(Level.FINE, "Dispatching to out queue: {0}", p.toString());
+                    if (logger.isLoggable(Level.FINER))
+                        logger.log(Level.FINER, "Dispatching to out queue: {0}", p.toString());
                     outQueue.write(p);
                 }                    
             } catch (XMPPComponentException ex) {

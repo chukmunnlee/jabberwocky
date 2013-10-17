@@ -72,8 +72,8 @@ public class PacketWriter implements Runnable {
 			xmlWriter.write(pkt.getElement());
 			xmlWriter.flush();
 			lastWrite = System.currentTimeMillis();
-            if (logger.isLoggable(Level.FINE))
-                logger.log(Level.FINE, "<<< Outbound: {0}" + pkt.toString());
+            if (logger.isLoggable(Level.FINER))
+                logger.log(Level.FINER, "<<< Outbound: {0}" + pkt.toString());
 		} catch (IOException ex) {
 			logger.log(Level.SEVERE, "Cannot send packet: {0}", pkt);
 			logger.log(Level.SEVERE, "Send packet exception", ex);

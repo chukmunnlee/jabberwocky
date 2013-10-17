@@ -57,8 +57,8 @@ public class PacketReader implements Runnable {
 				if (null == pkt)
 					continue;
 				queue.write(pkt);
-                if (logger.isLoggable(Level.FINE))
-                    logger.log(Level.FINE, ">>> Inbound: {0}" + pkt.toString());
+                if (logger.isLoggable(Level.FINER))
+                    logger.log(Level.FINER, ">>> Inbound: {0}" + pkt.toString());
 			} catch (Throwable ex) {
 				logger.log(Level.SEVERE, "PacketReader.run() exception", ex);
 			}
