@@ -12,16 +12,18 @@ import javax.enterprise.concurrent.ManagedExecutorService;
 import javax.servlet.annotation.WebListener;
 
 import static at.jabberwocky.api.Configurables.*;
+import at.jabberwocky.impl.core.Constants;
 import static at.jabberwocky.impl.core.util.Utility.*;
+import at.jabberwocky.spi.SubdomainConfiguration;
+import at.jabberwocky.spi.XMPPComponent;
+import at.jabberwocky.spi.XMPPComponentException;
 
 /**
  *
  * @author project
  */
 @WebListener
-public class JabberwockyContextListener implements ServletContextListener {
-
-    private final String DEFAULT_SERVICE = "java:comp/DefaultManagedExecutorService";
+public class JabberwockyContextListener implements ServletContextListener {   
 
     private static final Logger logger = Logger.getLogger(
             JabberwockyContextListener.class.getName());
@@ -29,13 +31,28 @@ public class JabberwockyContextListener implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent sce) {
 
-        logger.log(Level.INFO, "Initializing Jabberwocky context");
+        logger.log(Level.INFO, "Initializing Jabberwocky context");                
 
         ManagedExecutorService executor;
         String name = sce.getServletContext().getInitParameter(EXECUTOR_SERVICE);
+        XMPPComponent xmppComponent = (XMPPComponent)sce.getServletContext()
+                .getAttribute(Constants.XMPP_COMPONENT_OBJECT);
+        SubdomainConfiguration config;
+        
+        if (null == xmppComponent) {
+            logger.log(Level.SEVERE, "Cannot locate XMPPComponet.");
+            return;
+        }
+        
+        config = (SubdomainConfiguration)sce.getServletContext()
+                .getAttribute(Constants.XMPP_COMPONENT_CONFIGURATION);
+        
+        //Fire pre connect        
+        
+        //Fire post connect
 
         if (isNullOrEmpty(name))
-            name = DEFAULT_SERVICE;
+            name = Constants.DEFAULT_SERVICE;
         
         if (logger.isLoggable(Level.INFO))
             logger.log(Level.INFO, "Verifying executor service: {0}", name);        
@@ -44,8 +61,8 @@ public class JabberwockyContextListener implements ServletContextListener {
             executor = (ManagedExecutorService) InitialContext.doLookup(name);
         } catch (NamingException ex) {
             logger.log(Level.SEVERE, "Cannot get executor service: {0} ", name);
-        }
-
+            return;
+        }                
     }
 
     @Override
@@ -55,9 +72,9 @@ public class JabberwockyContextListener implements ServletContextListener {
         
         ManagedExecutorService executor;
         String name = sce.getServletContext().getInitParameter(EXECUTOR_SERVICE);
-        boolean shutown = (!(isNullOrEmpty(name) || DEFAULT_SERVICE.endsWith(name)));
+        boolean shutown = (!(isNullOrEmpty(name) || Constants.DEFAULT_SERVICE.endsWith(name)));
         if (isNullOrEmpty(name))
-            name = DEFAULT_SERVICE;        
+            name = Constants.DEFAULT_SERVICE;        
 
         //Shutdown XMPP listener thread
         if (logger.isLoggable(Level.INFO))

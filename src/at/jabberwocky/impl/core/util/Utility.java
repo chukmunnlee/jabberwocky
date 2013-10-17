@@ -6,12 +6,18 @@
 package at.jabberwocky.impl.core.util;
 
 import at.jabberwocky.api.annotation.Order;
+import at.jabberwocky.spi.ApplicationProperty;
+import at.jabberwocky.spi.ApplicationPropertyBag;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author project
  */
 public class Utility {
+    
+    private static final Logger logger = Logger.getLogger(Utility.class.getName());
 
 	public static boolean isNullOrEmpty(String s) {
 		return ((null == s) || (s.trim().length() <= 0));
@@ -40,5 +46,17 @@ public class Utility {
 
 		return (meName.compareTo(youName) * -1);
 	}
+    
+    public static int property(ApplicationPropertyBag props, String name, int defaultValue) {
+        ApplicationProperty prop = props.get(name);
+        if (null == prop)
+            return (defaultValue);
+        try {
+            return (Integer.parseInt(prop.getValue()));
+        } catch (NumberFormatException ex) {            
+            logger.log(Level.WARNING, "Invalid value {0} for property {1}", new Object[]{prop.getValue(), name});            
+            return (defaultValue);
+        }
+    }
 
 }

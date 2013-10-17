@@ -17,4 +17,7 @@ public class Configurables {
     public static final String XMPP_COMPONENT = "at.jabberwocky.component";
     public static final String EXECUTOR_SERVICE = "at.jabberwocky.executorService";
     
+    public static final String IN_QUEUE = "at.jabberwocky.io.size.queue.in";
+    public static final String OUT_QUEUE = "at.jabberwocky.io.size.queue.out";
+    
 }

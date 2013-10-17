@@ -5,6 +5,7 @@
  */
 package at.jabberwocky.impl.core;
 
+import at.jabberwocky.impl.core.io.JabberwockyComponentConnection;
 import at.jabberwocky.api.annotation.IQ;
 import at.jabberwocky.api.annotation.Message;
 import at.jabberwocky.api.annotation.Presence;
@@ -17,8 +18,10 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.xmpp.packet.Packet;
 
 /**
  *
@@ -34,6 +37,8 @@ public class JabberwockyXMPPComponent implements XMPPComponent {
 	
 	protected SubdomainConfiguration config;
 	protected JabberwockyComponentConnection connection;
+    
+    protected ExecutorService executorService;
 
 	@Override
 	public void initialize(Set<Class<?>> handlers, SubdomainConfiguration config)
@@ -46,12 +51,37 @@ public class JabberwockyXMPPComponent implements XMPPComponent {
 
 			logger.log(Level.WARNING, "Unknown handler type: {0}", c.getName());
 		}
-	}
+	}            
 
     @Override
-    public void connect() throws XMPPComponentException {        
-        connection = new JabberwockyComponentConnection(config);        
+    public List<Packet> processPacket(Packet packet) throws XMPPComponentException {
+        
+        List<Packet> result = null;
+        
+        if (logger.isLoggable(Level.FINE))
+            logger.log(Level.FINE, "Incoming: {0}", packet.toString());
+        
+        //Process packet
+        
+        
+        if (logger.isLoggable(Level.FINE)) {
+            logger.log(Level.FINE, "Outgoing:");
+            for (Packet p: result)
+                logger.log(Level.FINE, "   {0}", p.toString());
+        }            
+        
+        return (result);
+    }
+
+    @Override
+    public void start() {   
+        if (logger.isLoggable(Level.FINE))
+            logger.log(Level.FINE, "Starting Jabberwocky XMPPComponent");
     }        
-		
+
+    @Override
+    public SubdomainConfiguration getConfiguration() {
+        return (config);
+    }        
 
 }

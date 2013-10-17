@@ -6,7 +6,6 @@
 package at.jabberwocky.impl.web;
 
 import at.jabberwocky.api.annotation.*;
-import java.util.HashSet;
 
 import java.util.Set;
 import java.util.logging.Level;
@@ -16,15 +15,12 @@ import javax.servlet.*;
 import javax.servlet.annotation.HandlesTypes;
 
 import static at.jabberwocky.api.Configurables.*;
+
+import at.jabberwocky.impl.core.Constants;
+import at.jabberwocky.impl.core.io.JabberwockyComponentConnection;
 import at.jabberwocky.spi.*;
-import at.jabberwocky.spi.SubdomainConfiguration;
-import at.jabberwocky.spi.XMPPComponent;
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
+import java.io.*;
+import javax.xml.bind.*;
 
 /**
  *
@@ -53,19 +49,26 @@ public class JabberwockyWebInitializer implements ServletContainerInitializer {
             logger.log(Level.INFO, "Instantiating {0}", componetnClassName);
         
         XMPPComponent xmppComponent = instantiateComponent(componetnClassName);
+        JabberwockyComponentConnection connection = null;
         
         try {
             xmppComponent.initialize(handlers, config);
-            //Call pre connect
-            xmppComponent.connect();
         } catch (XMPPComponentException ex) {
             logger.log(Level.SEVERE, "Error during XMPPComponent initialization", ex);
             throw new ServletException("Error during XMPPComponent initialization", ex);
         }
         
-        //Call post connect
+        try {
+            connection = new JabberwockyComponentConnection(config);
+            connection.connect();
+        } catch (XMPPComponentException ex) {
+            logger.log(Level.SEVERE, "Connection problem", ex);
+            throw new ServletException("Connection problem", ex);
+        }
         
-        //Perform initialization of the thread pool
+        ctx.setAttribute(Constants.XMPP_COMPONENT_OBJECT, xmppComponent);
+        ctx.setAttribute(Constants.XMPP_COMPONENT_CONFIGURATION, config);     
+        ctx.setAttribute(Constants.XMPP_COMPONENT_CONNECTION, connection);
     }
     
     private SubdomainConfiguration readConfig(final ServletContext ctx) 

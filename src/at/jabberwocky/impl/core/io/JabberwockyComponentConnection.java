@@ -3,12 +3,16 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package at.jabberwocky.impl.core;
+package at.jabberwocky.impl.core.io;
 
+import at.jabberwocky.api.Configurables;
 import at.jabberwocky.impl.core.util.*;
 import at.jabberwocky.spi.*;
 import java.io.*;
 import java.net.*;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.logging.*;
 import org.dom4j.io.*;
 import org.xmlpull.v1.*;
@@ -24,18 +28,34 @@ public class JabberwockyComponentConnection implements Runnable {
             JabberwockyComponentConnection.class.getName());
 
     private final SubdomainConfiguration config;
-
-    private Socket connection = null;
-    private Reader reader = null;
-    private Writer writer = null;
-    private XmlPullParser xmlParser = null;
-    private XMLWriter xmlWriter = null;
     
-    private JID subdomainJID = null;
-    private JID domainJID = null;
+    private XMPPComponent xmppComponent;
+    
+    private boolean stop = false;
+
+    private Socket connection;
+    private Reader reader;
+    private Writer writer;
+    private XmlPullParser xmlParser;
+    private XMLWriter xmlWriter;
+    
+    private JID subdomainJID;
+    private JID domainJID;
     
     private String connectionId = null;
     private String errorTag = null;
+        
+    private ExecutorService executorService;
+    
+    private PacketWriter pktWriter;
+    private Future<?> writerFuture;
+    private PacketQueue outQueue;
+    
+    private PacketReader pktReader;
+    private Future<?> readerFuture;
+    private PacketQueue inQueue;
+    
+    private Future<?> thisFuture;                
 
     public JabberwockyComponentConnection(SubdomainConfiguration config) {
         this.config = config;
@@ -164,14 +184,66 @@ public class JabberwockyComponentConnection implements Runnable {
     }
     
     public void close() {
-        if (null != connection) 
+        if (null != connection) {
+            if (logger.isLoggable(Level.INFO))
+                logger.log(Level.INFO, "Terminating all IOs");
+            
+            stop = true;
+            pktReader.stop();
+            pktWriter.stop();
+            
+            thisFuture.cancel(false);
+            readerFuture.cancel(false);
+            writerFuture.cancel(false);
             try {
                 connection.close();
-            } catch (IOException ex) { /* ignore */ }
+            } catch (IOException ex) { /* ignore */ }        
+        }
+    }
+    
+    public void start(ExecutorService ex, XMPPComponent comp) {
+        ApplicationPropertyBag props = config.getProperties();        
+        executorService = ex;
+        
+        xmppComponent = comp;
+        
+        inQueue = new PacketQueue(Utility.property(props, Configurables.IN_QUEUE
+                , at.jabberwocky.impl.core.Constants.DEFAULT_QUEUE_SIZE), "In queue");
+        outQueue = new PacketQueue(Utility.property(props, Configurables.OUT_QUEUE
+                , at.jabberwocky.impl.core.Constants.DEFAULT_QUEUE_SIZE), "Out queue");
+        
+        pktReader = new PacketReader(xmlParser, reader, inQueue);
+        pktWriter = new PacketWriter(xmlWriter, writer, outQueue);
+        
+        readerFuture = ex.submit(pktReader);
+        writerFuture = ex.submit(pktWriter);
+        
+        thisFuture = ex.submit(this);                
     }
 
     @Override
-    public void run() {        
+    public void run() {  
+        if (logger.isLoggable(Level.INFO))
+            logger.log(Level.INFO, "Starting packet dispatcher thread");
+        
+        List<Packet> result;
+        
+        while (!stop) {
+            Packet in = inQueue.read();
+            if (null == in)
+                continue;
+            try {
+                result = xmppComponent.processPacket(in);
+                if ((null != result) || (result.size() > 0))
+                    for (Packet p: result) {
+                    if (logger.isLoggable(Level.FINE))
+                        logger.log(Level.FINE, "Dispatching to out queue: {0}", p.toString());
+                    outQueue.write(p);
+                }                    
+            } catch (XMPPComponentException ex) {
+                logger.log(Level.WARNING, "Error processing packet", ex);
+            }
+        }
     }        
 
 }
