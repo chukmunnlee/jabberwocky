@@ -70,5 +70,10 @@ public class Utility {
             return (defaultValue);
         }        
     }
+    
+   public static String property (ApplicationPropertyBag props, String name, String defaultValue) {
+       ApplicationProperty prop = props.get(name);
+       return ((null == prop)? defaultValue: prop.getValue());
+   }
 
 }

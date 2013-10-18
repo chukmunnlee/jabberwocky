@@ -5,16 +5,12 @@
  */
 package at.jabberwocky.impl.core;
 
+import at.jabberwocky.api.Configurables;
 import at.jabberwocky.impl.core.io.JabberwockyComponentConnection;
-import at.jabberwocky.api.annotation.IQ;
-import at.jabberwocky.api.annotation.Message;
-import at.jabberwocky.api.annotation.Presence;
+import at.jabberwocky.impl.core.util.Utility;
 import at.jabberwocky.spi.SubdomainConfiguration;
 import at.jabberwocky.spi.XMPPComponent;
 import at.jabberwocky.spi.XMPPComponentException;
-import java.io.IOException;
-import java.net.Socket;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -31,9 +27,15 @@ public class JabberwockyXMPPComponent implements XMPPComponent {
 
 	private static final Logger logger = Logger.getLogger(JabberwockyXMPPComponent.class.getName());
 
-	protected List<ClassNode> messageHandlers = new LinkedList<ClassNode>();
-	protected List<ClassNode> iqHandlers = new LinkedList<ClassNode>();
-	protected List<ClassNode> presenceHandlers = new LinkedList<ClassNode>();
+	protected List<ClassNode> messageHandlers = new LinkedList<>();
+	protected List<ClassNode> iqHandlers = new LinkedList<>();
+	protected List<ClassNode> presenceHandlers = new LinkedList<>();
+    
+    protected String discoInfoIdentityCategory = null;
+	protected String discoInfoIdentityCategoryType = null;
+	protected String discoInfoIdentityName = null;
+    
+    protected String description = null;
 	
 	protected SubdomainConfiguration config;
 	protected JabberwockyComponentConnection connection;
@@ -44,7 +46,15 @@ public class JabberwockyXMPPComponent implements XMPPComponent {
 	public void initialize(Set<Class<?>> handlers, SubdomainConfiguration config)
 			throws XMPPComponentException {
 		
-		this.config = config;               
+		this.config = config;           
+        
+        //Configure the disco#info 
+        discoInfoIdentityCategory = Utility.property(config.getProperties()
+                , Configurables.COMPONENT_CATEGORY, "");
+        discoInfoIdentityCategoryType = Utility.property(config.getProperties()
+                , Configurables.COMPONENT_TYPE, "");				
+		discoInfoIdentityName = Utility.property(config.getProperties()
+                , Configurables.COMPONENT_NAME, "Jabberwocky");				        
 
 		for (Class<?> c : handlers) {
 			ClassNode nh = null;
