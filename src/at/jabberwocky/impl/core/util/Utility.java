@@ -58,5 +58,17 @@ public class Utility {
             return (defaultValue);
         }
     }
+    
+    public static long property(ApplicationPropertyBag props, String name, long defaultValue) {
+        ApplicationProperty prop = props.get(name);
+        if (null == prop)
+            return (defaultValue);
+        try {
+            return (Long.parseLong(prop.getValue()));
+        } catch (NumberFormatException ex) {            
+            logger.log(Level.WARNING, "Invalid value {0} for property {1}", new Object[]{prop.getValue(), name});            
+            return (defaultValue);
+        }        
+    }
 
 }

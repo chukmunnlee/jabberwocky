@@ -55,7 +55,41 @@ public class JabberwockyComponentConnection implements Runnable {
     private Future<?> readerFuture;
     private PacketQueue inQueue;
     
-    private Future<?> thisFuture;                
+    private Future<?> thisFuture;      
+    
+    private KeepAlive keepAliveThread;
+    private Future<?> keepAliveFuture;
+    
+    private class KeepAlive implements Runnable {
+        
+        private PacketWriter pktWriter;
+        private boolean stop = false;
+        private final long sleep;
+        
+        public KeepAlive(PacketWriter pw, long sleep) {
+            pktWriter = pw;
+            this.sleep = sleep;
+        }
+        
+        public void stop() { stop = true; }
+
+        @Override
+        public void run() {
+            if (logger.isLoggable(Level.FINER))
+                logger.log(Level.FINER, "Starting keepalive thread");
+            while (!stop) {
+                try {
+                    Thread.sleep(sleep);
+                } catch (InterruptedException ex) {
+                    logger.log(Level.WARNING, "Keep alive thread interrupted. Exiting");
+                    return;
+                }
+                pktWriter.keepAlive();
+             }
+            if (logger.isLoggable(Level.FINER))
+                logger.log(Level.FINER, "Stopping keepalive thread");
+        }        
+    }
 
     public JabberwockyComponentConnection(SubdomainConfiguration config) {
         this.config = config;
@@ -189,12 +223,16 @@ public class JabberwockyComponentConnection implements Runnable {
                 logger.log(Level.INFO, "Terminating all IOs");
             
             stop = true;
+            
+            keepAliveThread.stop();
             pktReader.stop();
             pktWriter.stop();
             
+            keepAliveFuture.cancel(false);
             thisFuture.cancel(false);
             readerFuture.cancel(false);
             writerFuture.cancel(false);
+            
             try {
                 connection.close();
             } catch (IOException ex) { /* ignore */ }        
@@ -213,12 +251,17 @@ public class JabberwockyComponentConnection implements Runnable {
                 , "Out queue");
         
         pktReader = new PacketReader(xmlParser, reader, inQueue);
-        pktWriter = new PacketWriter(xmlWriter, writer, outQueue);
+        pktWriter = new PacketWriter(xmlWriter, writer, outQueue
+                , Utility.property(props, Configurables.KEEP_ALIVE, 20000L));
+        
+        keepAliveThread = new KeepAlive(pktWriter
+                , Utility.property(props, Configurables.KEEP_ALIVE, 20000L));
         
         readerFuture = ex.submit(pktReader);
         writerFuture = ex.submit(pktWriter);
         
-        thisFuture = ex.submit(this);                
+        thisFuture = ex.submit(this);          
+        keepAliveFuture = ex.submit(keepAliveThread);
     }
 
     @Override

@@ -28,6 +28,7 @@ public class PacketWriter implements Runnable {
 	private final XMLWriter xmlWriter;
 	private final Writer writer;
 	private final AtomicBoolean stop;
+    private final long keepAlive;
 
 	private final PacketQueue queue;
 
@@ -35,12 +36,13 @@ public class PacketWriter implements Runnable {
 
 	private long lastWrite = System.currentTimeMillis();
 
-	public PacketWriter(XMLWriter xw, Writer w, PacketQueue q) {
+	public PacketWriter(XMLWriter xw, Writer w, PacketQueue q, long ka) {
 		xmlWriter = xw;
 		writer = w;
 		queue = q;
 		stop = new AtomicBoolean(false);
 		lock = new ReentrantLock();
+        keepAlive = ka;
 	}
 
 	@Override
@@ -83,7 +85,7 @@ public class PacketWriter implements Runnable {
 	}
 
 	public void keepAlive() {
-		if ((System.currentTimeMillis() - lastWrite) >= 20000) {
+		if ((System.currentTimeMillis() - lastWrite) >= keepAlive) {
 			logger.log(Level.OFF, "Sending keep alive packet");
 			directWrite(" ");
 		}
