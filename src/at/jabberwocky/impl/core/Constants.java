@@ -10,14 +10,14 @@ package at.jabberwocky.impl.core;
  *
  * @author projects
  */
-public class Constants {
+public class Constants {        
     
     public static final String DEFAULT_SERVICE = "java:comp/DefaultManagedExecutorService";
     
+    public static final String XMPP_DEFAULTS = "defaults.properties";
+    
     public static final String XMPP_COMPONENT_OBJECT = "at.jabberwocky.xmppComponent.object";
     public static final String XMPP_COMPONENT_CONFIGURATION = "at.jabberwocky.xmppComponent.config";
-    public static final String XMPP_COMPONENT_CONNECTION = "at.jabberwocky.xmppComponent.connection";
-    
-    public static final int DEFAULT_QUEUE_SIZE = 5;
+    public static final String XMPP_COMPONENT_CONNECTION = "at.jabberwocky.xmppComponent.connection";        
     
 }

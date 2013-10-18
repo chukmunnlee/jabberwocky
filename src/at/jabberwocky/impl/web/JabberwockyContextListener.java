@@ -34,25 +34,20 @@ public class JabberwockyContextListener implements ServletContextListener {
         logger.log(Level.INFO, "Initializing Jabberwocky context");                
 
         ManagedExecutorService executor;
-        String name = sce.getServletContext().getInitParameter(EXECUTOR_SERVICE);
+        
         XMPPComponent xmppComponent = (XMPPComponent)sce.getServletContext()
                 .getAttribute(Constants.XMPP_COMPONENT_OBJECT);
-        SubdomainConfiguration config;
+        SubdomainConfiguration config = xmppComponent.getConfiguration();
+        String name = config.getProperties().get(EXECUTOR_SERVICE).getValue();
         
         if (null == xmppComponent) {
             logger.log(Level.SEVERE, "Cannot locate XMPPComponet.");
             return;
         }
         
-        config = (SubdomainConfiguration)sce.getServletContext()
-                .getAttribute(Constants.XMPP_COMPONENT_CONFIGURATION);
-        
         //Fire pre connect        
         
         //Fire post connect
-
-        if (isNullOrEmpty(name))
-            name = Constants.DEFAULT_SERVICE;
         
         if (logger.isLoggable(Level.INFO))
             logger.log(Level.INFO, "Verifying executor service: {0}", name);        
@@ -70,8 +65,12 @@ public class JabberwockyContextListener implements ServletContextListener {
         
         logger.log(Level.INFO, "Destroying Jabberwocky context");
         
+        XMPPComponent xmppComponent = (XMPPComponent)sce.getServletContext()
+                .getAttribute(Constants.XMPP_COMPONENT_OBJECT);
+        SubdomainConfiguration config = xmppComponent.getConfiguration();
+        String name = config.getProperties().get(EXECUTOR_SERVICE).getValue();
         ManagedExecutorService executor;
-        String name = sce.getServletContext().getInitParameter(EXECUTOR_SERVICE);
+
         boolean shutown = (!(isNullOrEmpty(name) || Constants.DEFAULT_SERVICE.endsWith(name)));
         if (isNullOrEmpty(name))
             name = Constants.DEFAULT_SERVICE;        

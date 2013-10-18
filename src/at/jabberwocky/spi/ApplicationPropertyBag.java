@@ -40,6 +40,20 @@ public class ApplicationPropertyBag implements Iterable<ApplicationProperty> {
             }
         properties.add(prop);
     }
+    
+    public void merge(ApplicationProperty toMerge) {
+        for (ApplicationProperty p: properties)
+            if (p.getName().equals(toMerge.getName())) {
+                p.setValue(toMerge.getValue());
+                return;
+            }
+        properties.add(toMerge);
+    }
+    
+    public void merge(ApplicationPropertyBag toMerge) {
+        for (ApplicationProperty p: toMerge)
+            merge(p);
+    }
 
     public void remove(String k) {
         String key = k.trim();

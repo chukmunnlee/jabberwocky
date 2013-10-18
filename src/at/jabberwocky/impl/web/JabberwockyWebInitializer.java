@@ -20,6 +20,7 @@ import at.jabberwocky.impl.core.Constants;
 import at.jabberwocky.impl.core.io.JabberwockyComponentConnection;
 import at.jabberwocky.spi.*;
 import java.io.*;
+import java.util.Properties;
 import javax.xml.bind.*;
 
 /**
@@ -40,9 +41,11 @@ public class JabberwockyWebInitializer implements ServletContainerInitializer {
         }        
         
         if (logger.isLoggable(Level.INFO))
-            logger.log(Level.INFO, "Reading xep-0114.xml");
+            logger.log(Level.INFO, "Reading xep-0114.xml");                
         
         SubdomainConfiguration config = readConfig(ctx);
+        config.setProperties(loadAndMergeDefaults(Constants.XMPP_DEFAULTS
+                , config.getProperties()));
         
         String componetnClassName = ctx.getInitParameter(XMPP_COMPONENT);        
         if (logger.isLoggable(Level.INFO))
@@ -109,6 +112,22 @@ public class JabberwockyWebInitializer implements ServletContainerInitializer {
         }
             
         return ((XMPPComponent)instance);
+    }
+    
+    private ApplicationPropertyBag loadAndMergeDefaults(String name, ApplicationPropertyBag toMerge) {
+        ApplicationPropertyBag bag = new ApplicationPropertyBag();
+        if (logger.isLoggable(Level.FINER))
+            logger.log(Level.FINER, "Loading defaults.properties");
+        try (InputStream is = this.getClass().getClassLoader().getResourceAsStream(name)) {
+            Properties prop = new Properties();
+            prop.load(is);    
+            for (String k: prop.stringPropertyNames())            
+                bag.add(new ApplicationProperty(k, prop.getProperty(name)));   
+            bag.merge(toMerge);
+        } catch (IOException ex) {
+            logger.log(Level.WARNING, "Cannot load defaults.properties", ex);
+        }
+        return (bag);
     }
     
 }

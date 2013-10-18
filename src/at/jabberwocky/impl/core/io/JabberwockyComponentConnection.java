@@ -207,10 +207,10 @@ public class JabberwockyComponentConnection implements Runnable {
         
         xmppComponent = comp;
         
-        inQueue = new PacketQueue(Utility.property(props, Configurables.IN_QUEUE
-                , at.jabberwocky.impl.core.Constants.DEFAULT_QUEUE_SIZE), "In queue");
-        outQueue = new PacketQueue(Utility.property(props, Configurables.OUT_QUEUE
-                , at.jabberwocky.impl.core.Constants.DEFAULT_QUEUE_SIZE), "Out queue");
+        inQueue = new PacketQueue(Utility.property(props, Configurables.IN_QUEUE, 5)
+                , "In queue");
+        outQueue = new PacketQueue(Utility.property(props, Configurables.OUT_QUEUE, 5)
+                , "Out queue");
         
         pktReader = new PacketReader(xmlParser, reader, inQueue);
         pktWriter = new PacketWriter(xmlWriter, writer, outQueue);
