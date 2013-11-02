@@ -47,7 +47,13 @@ public class JabberwockyWebInitializer implements ServletContainerInitializer {
         config.setProperties(loadAndMergeDefaults(Constants.XMPP_DEFAULTS
                 , config.getProperties()));
         
-        String componetnClassName = ctx.getInitParameter(XMPP_COMPONENT);        
+		ApplicationProperty prop = config.getProperties().get(XMPP_COMPONENT);
+		if (null == prop) {
+			logger.log(Level.SEVERE, "Cannot get XMPP component class. Set {0}", XMPP_COMPONENT);
+			throw new ServletException("Cannot get XMPP component class. Set " + XMPP_COMPONENT);
+		}
+
+        String componetnClassName = prop.getValue();
         if (logger.isLoggable(Level.INFO))
             logger.log(Level.INFO, "Instantiating {0}", componetnClassName);
         

@@ -65,6 +65,14 @@ public class MethodNode implements Comparable<MethodNode> {
         //I could extend a class
         for (Method m : c.getDeclaredMethods()) {
             List<Annotation> methodAnnot = new LinkedList<Annotation>();
+
+			//Run through all common annotations
+			for (Class ac: Constants.COMMON_ANNOTATIONS) {
+				Annotation an = m.getAnnotation(ac);
+				if (null != an)
+					methodAnnot.add(an);
+			}
+
             //Run through all the methods            
             for (Class ac : superSet) {                
                 Annotation an = m.getAnnotation(ac);
@@ -75,24 +83,7 @@ public class MethodNode implements Comparable<MethodNode> {
             if (methodAnnot.size() <= 0)
                 continue;
 
-            //Parameters
-/*            
-            boolean hasAnnotatedParam = false;
-            Class paramType[] = m.getParameterTypes();
-            Annotation paramAnnot[] = new Annotation[paramType.length];
-            Annotation[][] declAnnot = m.getParameterAnnotations();
-            for (int i = 0; i < declAnnot.length; i++) {
-                for (int j = 0; j < declAnnot[i].length; j++) {
-                    if (declAnnot[i][j].annotationType() == Bind.class) {
-                        hasAnnotatedParam = true;
-                        paramAnnot[i] = declAnnot[i][j];
-                    }
-                }
-            }       */
-
             result = new MethodNode(m, methodAnnot.toArray(new Annotation[]{}));
-            //if (hasAnnotatedParam)
-                //result.parametersInfo(paramAnnot, paramType);
             nodes.add(result);            
         }
 

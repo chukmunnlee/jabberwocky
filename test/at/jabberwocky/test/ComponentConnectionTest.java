@@ -66,13 +66,20 @@ public class ComponentConnectionTest implements XMPPComponent {
     }
 
     @Override
-    public void start() throws XMPPComponentException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     public List<Packet> processPacket(Packet packet) throws XMPPComponentException {
         System.out.println("------> received packet: " + packet.toString());
         return (new LinkedList<>());
     }
+
+	@Override
+	public void preConnect() throws XMPPComponentException { }
+
+	@Override
+	public void postConnect() throws XMPPComponentException { }
+
+	@Override
+	public void preDisconnect() throws XMPPComponentException { }
+
+	@Override
+	public void postDisconnect() throws XMPPComponentException { }
 }

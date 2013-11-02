@@ -95,18 +95,23 @@ public class ClassNode implements Comparable<ClassNode>, Iterable<MethodNode> {
     }
 
     public static ClassNode create(Class<?> c, Class<? extends Annotation> mainAnnot
-            , Class<? extends Annotation>[] otharAnnot) {
+            , Class<? extends Annotation>[] msgSpecific) {
         
-        Set<Annotation> annotSet = new HashSet<Annotation>();        
+        Set<Annotation> annotSet = new HashSet<>();        
         if (!c.isAnnotationPresent(mainAnnot))
             return (null);
         
         annotSet.add(c.getAnnotation(mainAnnot));
+
+		//Common annotations
+		for (Class<? extends Annotation> a: Constants.COMMON_ANNOTATIONS)
+			if (c.isAnnotationPresent(a))
+				annotSet.add(c.getAnnotation(a));
                 
-        for (Class<? extends Annotation> a : otharAnnot) {            
+		//Handler specific
+        for (Class<? extends Annotation> a : msgSpecific) 
             if (c.isAnnotationPresent(a))
                 annotSet.add(c.getAnnotation(a));         
-        }
 
         ClassNode cn = new ClassNode(c, annotSet.toArray(new Annotation[]{}));
         //cn.setFields(FieldNode.create(c, Inject.class));

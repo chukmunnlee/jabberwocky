@@ -44,16 +44,11 @@ public class FieldNode {
                 + ", fieldAnnotations=" + fieldAnnotations + '}';
     }
 
-    public static FieldNode[] create(final Class<?> c, final Class<? extends Annotation>... annot) {
-        List<FieldNode> nodes = new LinkedList<FieldNode>();
+    public static FieldNode[] create(final Class<?> c) {
+        List<FieldNode> nodes = new LinkedList<>();
         Annotation an;
         for (Field f: c.getDeclaredFields()) {
             List<Annotation> a = ReflectionHelper.allCDIAnnotations(f.getAnnotations());            
-/*  **validation**
-            for (Class<? extends Annotation> ac: annot)                
-                if (null != (an = f.getAnnotation(ac)))
-                    a.add(an);                */
-            
             if (a.size() > 0)
                 nodes.add(new FieldNode(f, a.toArray(new Annotation[]{})));
         }

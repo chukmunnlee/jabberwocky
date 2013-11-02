@@ -6,6 +6,10 @@
 
 package at.jabberwocky.impl.core;
 
+import at.jabberwocky.api.annotation.From;
+import at.jabberwocky.api.annotation.To;
+import at.jabberwocky.api.annotation.message.Body;
+
 /**
  *
  * @author projects
@@ -31,5 +35,24 @@ public class Constants {
 	public static final String NAMESPACE_VCARD_TEMP = "vcard-temp";
     public static final String NAMESPACE_PERSONAL_EVENTING = "http://jabber.org/protocol/caps";	
     public static final String NAMESPACE_WEB_INTERFACE = "urn:web:interface";
-    
+
+	public static final Class[] COMMON_ANNOTATIONS = {
+		From.class, To.class	
+	};
+
+	public static final Class[] MESSAGE_ANNOTATIONS = {
+		Body.class
+	};
+
+	public static final Class[] IQ_ANNOTATIONS = {
+
+	};
+
+	public static final Class[] PRESENCE_ANNOTATIONS = {
+
+	};
+
+	public static final Class[] FIELD_AND_PARAM_ANNOTATIONS = {
+
+	};
 }

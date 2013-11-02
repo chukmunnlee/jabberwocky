@@ -16,7 +16,6 @@ import at.jabberwocky.impl.core.Constants;
 import static at.jabberwocky.impl.core.util.Utility.*;
 import at.jabberwocky.spi.SubdomainConfiguration;
 import at.jabberwocky.spi.XMPPComponent;
-import at.jabberwocky.spi.XMPPComponentException;
 
 /**
  *
@@ -37,17 +36,18 @@ public class JabberwockyContextListener implements ServletContextListener {
         
         XMPPComponent xmppComponent = (XMPPComponent)sce.getServletContext()
                 .getAttribute(Constants.XMPP_COMPONENT_OBJECT);
-        SubdomainConfiguration config = xmppComponent.getConfiguration();
-        String name = config.getProperties().get(EXECUTOR_SERVICE).getValue();
-        
+
         if (null == xmppComponent) {
             logger.log(Level.SEVERE, "Cannot locate XMPPComponet.");
             return;
         }
+
+        SubdomainConfiguration config = xmppComponent.getConfiguration();
+        String name = config.getProperties().get(EXECUTOR_SERVICE).getValue();
         
-        //Fire pre connect        
+        //Fire preConnect        
         
-        //Fire post connect
+        //Fire postConnect
         
         if (logger.isLoggable(Level.INFO))
             logger.log(Level.INFO, "Verifying executor service: {0}", name);        
