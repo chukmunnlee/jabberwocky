@@ -10,9 +10,12 @@ import at.jabberwocky.impl.core.util.*;
 import at.jabberwocky.spi.*;
 import java.io.*;
 import java.net.*;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.*;
 import org.dom4j.io.*;
 import org.xmlpull.v1.*;
@@ -29,7 +32,7 @@ public class JabberwockyComponentConnection implements Runnable {
 
     private final SubdomainConfiguration config;
     
-    private XMPPComponent xmppComponent;
+	private AtomicReference<XMPPComponent> xmppHolder;
     
     private boolean stop = false;
 
@@ -243,7 +246,7 @@ public class JabberwockyComponentConnection implements Runnable {
         ApplicationPropertyBag props = config.getProperties();        
         executorService = ex;
         
-        xmppComponent = comp;
+		xmppHolder = new AtomicReference<>(comp);
         
         inQueue = new PacketQueue(Utility.property(props, Configurables.IN_QUEUE, 5)
                 , "In queue");
@@ -264,6 +267,30 @@ public class JabberwockyComponentConnection implements Runnable {
         keepAliveFuture = ex.submit(keepAliveThread);
     }
 
+	public void stopReceiving() {
+		//Create a dummy component to stop processing packets
+		XMPPComponent c = new XMPPComponent() {
+			@Override
+			public void initialize(Set<Class<?>> handlers, SubdomainConfiguration config) 
+					throws XMPPComponentException { }
+			@Override
+			public void preConnect() throws XMPPComponentException { }
+			@Override
+			public void postConnect() throws XMPPComponentException { }
+			@Override
+			public void preDisconnect() throws XMPPComponentException { }
+			@Override
+			public void postDisconnect() throws XMPPComponentException { }
+			@Override
+			public SubdomainConfiguration getConfiguration() { return (config); }
+			@Override
+			public List<Packet> processPacket(Packet packet) throws XMPPComponentException { 
+				return (new LinkedList<>());
+			}
+		};
+		xmppHolder.set(c);
+	}
+
     @Override
     public void run() {  
         if (logger.isLoggable(Level.INFO))
@@ -278,7 +305,7 @@ public class JabberwockyComponentConnection implements Runnable {
             if (logger.isLoggable(Level.FINER))
                 logger.log(Level.FINER, "Routing to component: {0}", in.toString());
             try {
-                result = xmppComponent.processPacket(in);
+				result = xmppHolder.get().processPacket(in);
                 if ((null != result) || (result.size() > 0))
                     for (Packet p: result) {
                     if (logger.isLoggable(Level.FINER))
@@ -286,7 +313,7 @@ public class JabberwockyComponentConnection implements Runnable {
                     outQueue.write(p);
                 }                    
             } catch (XMPPComponentException ex) {
-                logger.log(Level.WARNING, "Error processing packet", ex);
+                logger.log(Level.WARNING, "Error processing packet:\n" + in, ex);
             }
         }
     }        
