@@ -33,7 +33,7 @@ public class ComponentConnectionTest implements XMPPComponent {
         config = new SubdomainConfiguration();
         config.setDomain("batcomputer");
         config.setName("jabberwocky");
-        config.setSharedSecret("jabberwocky");
+        config.setSharedSecret("growl");
         
         service = Executors.newFixedThreadPool(3);
     }

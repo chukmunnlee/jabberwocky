@@ -15,7 +15,7 @@ import org.xmpp.packet.JID;
  *
  * @author project
  */
-public class ExternalComponentEvent extends EventObject {
+public class ComponentLifecycleEvent extends EventObject {
 
 	private static final long serialVersionUID = 1L;
 
@@ -27,11 +27,11 @@ public class ExternalComponentEvent extends EventObject {
 	private JID jid;
 	private final long time = (new Date()).getTime();
 
-	public ExternalComponentEvent() {
+	public ComponentLifecycleEvent() {
 		super(null);
 	}
 
-	public ExternalComponentEvent(Object obj) {
+	public ComponentLifecycleEvent(Object obj) {
 		super (obj);
 	}
 

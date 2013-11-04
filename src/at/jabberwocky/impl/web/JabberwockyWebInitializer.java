@@ -34,7 +34,11 @@ public class JabberwockyWebInitializer implements ServletContainerInitializer {
 
     @Override
     public void onStartup(Set<Class<?>> handlers, ServletContext ctx) throws ServletException {
-        if (handlers.size() <= 0) {
+
+		boolean toStart = handlers.size() > 0;
+		ctx.setAttribute(Constants.XMPP_COMPONENT_TO_START, toStart);
+
+        if (!toStart) {
             if (logger.isLoggable(Level.INFO))
                 logger.log(Level.INFO, "No XMPP message handler found. Not starting component");
             return;
@@ -127,8 +131,8 @@ public class JabberwockyWebInitializer implements ServletContainerInitializer {
         try (InputStream is = this.getClass().getClassLoader().getResourceAsStream(name)) {
             Properties prop = new Properties();
             prop.load(is);    
-            for (String k: prop.stringPropertyNames())            
-                bag.add(new ApplicationProperty(k, prop.getProperty(name)));   
+            for (String k: prop.stringPropertyNames()) 
+                bag.add(new ApplicationProperty(k, prop.getProperty(k)));   
             bag.merge(toMerge);
         } catch (IOException ex) {
             logger.log(Level.WARNING, "Cannot load defaults.properties", ex);

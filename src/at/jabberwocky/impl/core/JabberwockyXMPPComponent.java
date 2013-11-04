@@ -153,7 +153,8 @@ public class JabberwockyXMPPComponent implements XMPPComponent {
             logger.log(Level.FINE, "Incoming: {0}", packet.toString());
         
         //Process packet
-        
+		System.out.println("--------> in processPacket: ");
+		System.out.println("\t" + packet);
         
         if (logger.isLoggable(Level.FINE)) {
             logger.log(Level.FINE, "Outgoing:");

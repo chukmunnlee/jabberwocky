@@ -18,7 +18,9 @@ public class Constants {
     
     public static final String DEFAULT_SERVICE = "java:comp/DefaultManagedExecutorService";
     
-    public static final String XMPP_DEFAULTS = "defaults.properties";
+    public static final String XMPP_DEFAULTS = "at/jabberwocky/impl/core/defaults.properties";
+
+	public static final String XMPP_COMPONENT_TO_START = "at.jabberwocky.xmppComponent.toStart";
     
     public static final String XMPP_COMPONENT_OBJECT = "at.jabberwocky.xmppComponent.object";
     public static final String XMPP_COMPONENT_CONFIGURATION = "at.jabberwocky.xmppComponent.config";

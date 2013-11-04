@@ -12,9 +12,10 @@ import javax.enterprise.concurrent.ManagedExecutorService;
 import javax.servlet.annotation.WebListener;
 
 import static at.jabberwocky.api.Configurables.*;
-import at.jabberwocky.api.ExternalComponentEvent;
+import at.jabberwocky.api.ComponentLifecycleEvent;
 import at.jabberwocky.impl.core.Constants;
 import at.jabberwocky.impl.core.io.JabberwockyComponentConnection;
+import at.jabberwocky.impl.core.util.ComponentLifecycleQualifier;
 import static at.jabberwocky.impl.core.util.Utility.*;
 import at.jabberwocky.spi.SubdomainConfiguration;
 import at.jabberwocky.spi.XMPPComponent;
@@ -36,6 +37,10 @@ public class JabberwockyContextListener implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent sce) {
 
+		boolean toStart = (Boolean)sce.getServletContext().getAttribute(Constants.XMPP_COMPONENT_TO_START);
+		if (!toStart)
+			return;
+
         logger.log(Level.INFO, "Initializing Jabberwocky context");                
 
         ManagedExecutorService executor;
@@ -44,7 +49,7 @@ public class JabberwockyContextListener implements ServletContextListener {
                 .getAttribute(Constants.XMPP_COMPONENT_OBJECT);
 
         if (null == xmppComponent) {
-            logger.log(Level.SEVERE, "Cannot locate XMPPComponet.");
+            logger.log(Level.SEVERE, "Cannot locate XMPPComponent.");
             return;
         }
 
@@ -64,9 +69,9 @@ public class JabberwockyContextListener implements ServletContextListener {
         //Fire preConnect        
 		if (logger.isLoggable(Level.FINE))
 			logger.log(Level.FINE, "Fire PreConnect event");
-		fire(xmppComponent, config, ExternalComponentEvent.Phase.PreConnect);
+		fire(xmppComponent, config, ComponentLifecycleEvent.Phase.PreConnect);
         
-		JabberwockyComponentConnection connection = new JabberwockyComponentConnection(config);
+		JabberwockyComponentConnection connection;
 		        
         try {
             connection = new JabberwockyComponentConnection(config);
@@ -81,7 +86,7 @@ public class JabberwockyContextListener implements ServletContextListener {
         //Fire postConnect
 		if (logger.isLoggable(Level.FINE))
 			logger.log(Level.FINE, "Fire PostConnect event");
-		fire(xmppComponent, config, ExternalComponentEvent.Phase.PostDisconnect);
+		fire(xmppComponent, config, ComponentLifecycleEvent.Phase.PostDisconnect);
 
 		//Start receiving packets
 		if (logger.isLoggable(Level.INFO))
@@ -91,6 +96,10 @@ public class JabberwockyContextListener implements ServletContextListener {
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
+
+		boolean toStart = (Boolean)sce.getServletContext().getAttribute(Constants.XMPP_COMPONENT_TO_START);
+		if (!toStart)
+			return;
         
         logger.log(Level.INFO, "Destroying Jabberwocky context");
         
@@ -109,7 +118,7 @@ public class JabberwockyContextListener implements ServletContextListener {
 		//Fire PreDisconnect
 		if (logger.isLoggable(Level.FINE))
 			logger.log(Level.FINE, "Fire PreDisconnect event");
-		fire(xmppComponent, config, ExternalComponentEvent.Phase.PreDisconnect);
+		fire(xmppComponent, config, ComponentLifecycleEvent.Phase.PreDisconnect);
 
         //Shutdown XMPP listener thread
         if (logger.isLoggable(Level.INFO))
@@ -119,7 +128,7 @@ public class JabberwockyContextListener implements ServletContextListener {
 		//Fire PostDisconnect
 		if (logger.isLoggable(Level.FINE))
 			logger.log(Level.FINE, "Fire PreDisconnect event");
-		fire(xmppComponent, config, ExternalComponentEvent.Phase.PostDisconnect);
+		fire(xmppComponent, config, ComponentLifecycleEvent.Phase.PostDisconnect);
         
 		//Do I need to shutdown the service ?
         //Shutdown executor - only shutdown if it is not default service
@@ -137,17 +146,18 @@ public class JabberwockyContextListener implements ServletContextListener {
         }
     }
 
-	private void fire(XMPPComponent comp, SubdomainConfiguration config
-			, ExternalComponentEvent.Phase p) {
+	private void fire(XMPPComponent comp, SubdomainConfiguration config, ComponentLifecycleEvent.Phase p) {
 
 		BeanManager bm = CDI.current().getBeanManager();
 
-		ExternalComponentEvent evt = new ExternalComponentEvent(comp);
+		ComponentLifecycleEvent evt = new ComponentLifecycleEvent(comp);
 
 		evt.setComponentJID(new JID(config.getName() + "." + config.getDomain()));
 		evt.setConfiguration(config);
 		evt.setContext(null);
 		evt.setPhase(p);
+
+		bm.fireEvent(evt, new ComponentLifecycleQualifier(p));
 	}
 
 }
