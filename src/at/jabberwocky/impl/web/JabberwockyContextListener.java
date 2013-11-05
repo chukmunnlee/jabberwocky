@@ -13,16 +13,16 @@ import javax.servlet.annotation.WebListener;
 
 import static at.jabberwocky.api.Configurables.*;
 import at.jabberwocky.api.ComponentLifecycleEvent;
+import at.jabberwocky.impl.core.ConnectionStarter;
 import at.jabberwocky.impl.core.Constants;
 import at.jabberwocky.impl.core.io.JabberwockyComponentConnection;
-import at.jabberwocky.impl.core.util.ComponentLifecycleQualifier;
+import at.jabberwocky.impl.core.util.CDIUtilities;
 import static at.jabberwocky.impl.core.util.Utility.*;
 import at.jabberwocky.spi.SubdomainConfiguration;
 import at.jabberwocky.spi.XMPPComponent;
-import at.jabberwocky.spi.XMPPComponentException;
+import javax.ejb.EJB;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.CDI;
-import org.xmpp.packet.JID;
 
 /**
  *
@@ -34,17 +34,18 @@ public class JabberwockyContextListener implements ServletContextListener {
     private static final Logger logger = Logger.getLogger(
             JabberwockyContextListener.class.getName());
 
+	@EJB private ConnectionStarter connectionStarter;
+
     @Override
     public void contextInitialized(ServletContextEvent sce) {
 
-		boolean toStart = (Boolean)sce.getServletContext().getAttribute(Constants.XMPP_COMPONENT_TO_START);
+		boolean toStart = (Boolean)sce.getServletContext().getAttribute(
+				Constants.XMPP_COMPONENT_TO_START);
 		if (!toStart)
 			return;
 
         logger.log(Level.INFO, "Initializing Jabberwocky context");                
 
-        ManagedExecutorService executor;
-        
         XMPPComponent xmppComponent = (XMPPComponent)sce.getServletContext()
                 .getAttribute(Constants.XMPP_COMPONENT_OBJECT);
 
@@ -54,50 +55,18 @@ public class JabberwockyContextListener implements ServletContextListener {
         }
 
         SubdomainConfiguration config = xmppComponent.getConfiguration();
-        String name = config.getProperties().get(EXECUTOR_SERVICE).getValue();
+		long delay = Long.parseLong(
+				config.getProperties().get(CONNECTION_START_DELAY).getValue());
 
-        if (logger.isLoggable(Level.INFO))
-            logger.log(Level.INFO, "Verifying executor service: {0}", name);        
-
-        try {
-            executor = (ManagedExecutorService) InitialContext.doLookup(name);
-        } catch (NamingException ex) {
-            logger.log(Level.SEVERE, "Cannot get executor service: {0} ", name);
-            return;
-        }                
-        
-        //Fire preConnect        
-		if (logger.isLoggable(Level.FINE))
-			logger.log(Level.FINE, "Fire PreConnect event");
-		fire(xmppComponent, config, ComponentLifecycleEvent.Phase.PreConnect);
-        
-		JabberwockyComponentConnection connection;
-		        
-        try {
-            connection = new JabberwockyComponentConnection(config);
-            connection.connect();
-        } catch (XMPPComponentException ex) {
-            logger.log(Level.SEVERE, "Connection problem. Stopped", ex);
-			return;
-        }
-
-        sce.getServletContext().setAttribute(Constants.XMPP_COMPONENT_CONNECTION, connection);
-
-        //Fire postConnect
-		if (logger.isLoggable(Level.FINE))
-			logger.log(Level.FINE, "Fire PostConnect event");
-		fire(xmppComponent, config, ComponentLifecycleEvent.Phase.PostDisconnect);
-
-		//Start receiving packets
-		if (logger.isLoggable(Level.INFO))
-			logger.log(Level.INFO, "Starting component");
-		connection.start(executor, xmppComponent);
+		connectionStarter.scheduleToStart(delay, xmppComponent
+				, config, sce.getServletContext());
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
 
-		boolean toStart = (Boolean)sce.getServletContext().getAttribute(Constants.XMPP_COMPONENT_TO_START);
+		boolean toStart = (Boolean)sce.getServletContext().getAttribute(
+				Constants.XMPP_COMPONENT_TO_START);
 		if (!toStart)
 			return;
         
@@ -116,9 +85,11 @@ public class JabberwockyContextListener implements ServletContextListener {
 		connection.stopReceiving();
 
 		//Fire PreDisconnect
+		BeanManager bm = CDI.current().getBeanManager();
 		if (logger.isLoggable(Level.FINE))
 			logger.log(Level.FINE, "Fire PreDisconnect event");
-		fire(xmppComponent, config, ComponentLifecycleEvent.Phase.PreDisconnect);
+		CDIUtilities.fire(xmppComponent, config
+				, ComponentLifecycleEvent.Phase.PreDisconnect, bm);
 
         //Shutdown XMPP listener thread
         if (logger.isLoggable(Level.INFO))
@@ -128,7 +99,8 @@ public class JabberwockyContextListener implements ServletContextListener {
 		//Fire PostDisconnect
 		if (logger.isLoggable(Level.FINE))
 			logger.log(Level.FINE, "Fire PreDisconnect event");
-		fire(xmppComponent, config, ComponentLifecycleEvent.Phase.PostDisconnect);
+		CDIUtilities.fire(xmppComponent, config
+				, ComponentLifecycleEvent.Phase.PostDisconnect, bm);
         
 		//Do I need to shutdown the service ?
         //Shutdown executor - only shutdown if it is not default service
@@ -145,19 +117,5 @@ public class JabberwockyContextListener implements ServletContextListener {
             }
         }
     }
-
-	private void fire(XMPPComponent comp, SubdomainConfiguration config, ComponentLifecycleEvent.Phase p) {
-
-		BeanManager bm = CDI.current().getBeanManager();
-
-		ComponentLifecycleEvent evt = new ComponentLifecycleEvent(comp);
-
-		evt.setComponentJID(new JID(config.getName() + "." + config.getDomain()));
-		evt.setConfiguration(config);
-		evt.setContext(null);
-		evt.setPhase(p);
-
-		bm.fireEvent(evt, new ComponentLifecycleQualifier(p));
-	}
 
 }

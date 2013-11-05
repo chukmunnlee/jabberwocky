@@ -14,7 +14,7 @@ Example of WEB-INF/xep-0114.xml
 	<shared-secret>hush hush</shared-secret>
 
 	<!-- optional -->
-	<port>5272</port> 
+	<port>5275</port> 
 
 	<properties>
 		<!-- one or more of these -->

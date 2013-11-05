@@ -47,7 +47,7 @@ public class ComponentConnectionTest implements XMPPComponent {
         
         logger.setLevel(Level.ALL);
         connection.connect();
-        
+
         connection.start(service,  this);
         
         try {
