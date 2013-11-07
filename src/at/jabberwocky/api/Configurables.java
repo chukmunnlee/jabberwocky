@@ -25,6 +25,5 @@ public class Configurables {
     public static final String OUT_QUEUE = "at.jabberwocky.io.size.queue.out";
     
     public static final String KEEP_ALIVE = "at.jabberwocky.time.keepAlive";
-    public static final String CONNECTION_START_DELAY = "at.jabberwocky.time.connectionDelay";
     
 }

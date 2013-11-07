@@ -24,8 +24,9 @@ public class Constants {
     
     public static final String XMPP_COMPONENT_OBJECT = "at.jabberwocky.xmppComponent.object";
     public static final String XMPP_COMPONENT_CONFIGURATION = "at.jabberwocky.xmppComponent.config";
-    public static final String XMPP_COMPONENT_CONNECTION = "at.jabberwocky.xmppComponent.connection";   
-    
+    public static final String XMPP_COMPONENT_CONNECTION = "at.jabberwocky.xmppComponent.connection";
+    public static final String XMPP_CONNECTION_LOCK = "at.jabberwocky.xmppComponent.connection.lock";   
+
     public static final String NAME = "Jabberwocky XMPP framework";
 	public static final String VERSION = "0.1 beta";
 

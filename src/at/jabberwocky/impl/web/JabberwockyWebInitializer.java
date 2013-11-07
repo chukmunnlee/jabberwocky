@@ -17,10 +17,10 @@ import javax.servlet.annotation.HandlesTypes;
 import static at.jabberwocky.api.Configurables.*;
 
 import at.jabberwocky.impl.core.Constants;
-import at.jabberwocky.impl.core.io.JabberwockyComponentConnection;
 import at.jabberwocky.spi.*;
 import java.io.*;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.xml.bind.*;
 
 /**
@@ -43,7 +43,7 @@ public class JabberwockyWebInitializer implements ServletContainerInitializer {
                 logger.log(Level.INFO, "No XMPP message handler found. Not starting component");
             return;
         }        
-        
+
         if (logger.isLoggable(Level.INFO))
             logger.log(Level.INFO, "Reading xep-0114.xml");                
         
@@ -53,8 +53,10 @@ public class JabberwockyWebInitializer implements ServletContainerInitializer {
         
 		ApplicationProperty prop = config.getProperties().get(XMPP_COMPONENT);
 		if (null == prop) {
-			logger.log(Level.SEVERE, "Cannot get XMPP component class. Set {0}", XMPP_COMPONENT);
-			throw new ServletException("Cannot get XMPP component class. Set " + XMPP_COMPONENT);
+			logger.log(Level.SEVERE, "Cannot get XMPP component class. Set {0}"
+					, XMPP_COMPONENT);
+			throw new ServletException("Cannot get XMPP component class. Set " 
+					+ XMPP_COMPONENT);
 		}
 
         String componetnClassName = prop.getValue();
@@ -62,7 +64,6 @@ public class JabberwockyWebInitializer implements ServletContainerInitializer {
             logger.log(Level.INFO, "Instantiating {0}", componetnClassName);
         
         XMPPComponent xmppComponent = instantiateComponent(componetnClassName);
-        JabberwockyComponentConnection connection = null;
         
         try {
             xmppComponent.initialize(handlers, config);
@@ -71,17 +72,17 @@ public class JabberwockyWebInitializer implements ServletContainerInitializer {
             throw new ServletException("Error during XMPPComponent initialization", ex);
         }
         
-        try {
-            connection = new JabberwockyComponentConnection(config);
-            connection.connect();
-        } catch (XMPPComponentException ex) {
-            logger.log(Level.SEVERE, "Connection problem", ex);
-            throw new ServletException("Connection problem", ex);
-        }
-        
         ctx.setAttribute(Constants.XMPP_COMPONENT_OBJECT, xmppComponent);
         ctx.setAttribute(Constants.XMPP_COMPONENT_CONFIGURATION, config);     
-        ctx.setAttribute(Constants.XMPP_COMPONENT_CONNECTION, connection);
+        ctx.setAttribute(Constants.XMPP_CONNECTION_LOCK, new AtomicBoolean(false));
+
+		if (logger.isLoggable(Level.INFO))
+			logger.log(Level.INFO, "Configuring (0}", JabberwockyServlet.class.getName());
+
+		ServletRegistration.Dynamic jabberwockyServlet = 
+				ctx.addServlet("JabberwockyServlet", JabberwockyServlet.class);
+		jabberwockyServlet.addMapping("/jabberwocky", "/jabberwocky/*");
+		jabberwockyServlet.setLoadOnStartup(1);
     }
     
     private SubdomainConfiguration readConfig(final ServletContext ctx) 
