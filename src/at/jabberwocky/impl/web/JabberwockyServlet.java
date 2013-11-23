@@ -12,7 +12,6 @@ import static at.jabberwocky.api.Configurables.EXECUTOR_SERVICE;
 import at.jabberwocky.impl.core.Constants;
 import at.jabberwocky.impl.core.io.JabberwockyComponentConnection;
 import at.jabberwocky.impl.core.util.CDIUtilities;
-import static at.jabberwocky.impl.core.util.Utility.isNullOrEmpty;
 import at.jabberwocky.spi.SubdomainConfiguration;
 import at.jabberwocky.spi.XMPPComponent;
 import at.jabberwocky.spi.XMPPComponentException;
@@ -37,8 +36,7 @@ import javax.servlet.http.HttpServletResponse;
  * @author project
  */
 @WebServlet(urlPatterns = {"/jabberwocky", "/jabberwocky/*"},
-		loadOnStartup = 1
-)
+		loadOnStartup = 1, asyncSupported = true)
 public class JabberwockyServlet extends HttpServlet {
 
 	private static final Logger logger = Logger.getLogger(JabberwockyServlet.class.getName());
@@ -106,7 +104,7 @@ public class JabberwockyServlet extends HttpServlet {
         try {
             executor = (ManagedExecutorService) InitialContext.doLookup(name);
         } catch (NamingException ex) {
-            logger.log(Level.SEVERE, "Cannot get executor service: {0} ", name);
+            logger.log(Level.SEVERE, "Cannot get executor service: " + name, ex);
             return;
         }                
 
@@ -155,6 +153,7 @@ public class JabberwockyServlet extends HttpServlet {
         
 		//Do I need to shutdown the service ?
         //Shutdown executor - only shutdown if it is not default service
+		/*
         if (!(isNullOrEmpty(name) || Constants.DEFAULT_SERVICE.endsWith(name))) {
             if (logger.isLoggable(Level.INFO)) {
                 logger.log(Level.INFO, "Shutting down executor: {0}", name);
@@ -166,7 +165,7 @@ public class JabberwockyServlet extends HttpServlet {
             } catch (NamingException ex) {
                 logger.log(Level.WARNING, "Cannot get executor service: {0}", name);
             }
-        }
+        } */
 	}
 
 	@Override
@@ -175,7 +174,4 @@ public class JabberwockyServlet extends HttpServlet {
 
 		resp.setStatus(HttpServletResponse.SC_OK);
 	}
-
-	
-
 }

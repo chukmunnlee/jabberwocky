@@ -10,13 +10,18 @@ import at.jabberwocky.impl.core.util.*;
 import at.jabberwocky.spi.*;
 import java.io.*;
 import java.net.*;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.*;
+import javax.enterprise.concurrent.ManagedTask;
+import javax.enterprise.concurrent.ManagedTaskListener;
 import org.dom4j.io.*;
 import org.xmlpull.v1.*;
 import org.xmpp.packet.*;
@@ -25,7 +30,7 @@ import org.xmpp.packet.*;
  *
  * @author projects
  */
-public class JabberwockyComponentConnection implements Runnable {
+public class JabberwockyComponentConnection implements Runnable, ManagedTask {
 
     private static final Logger logger = Logger.getLogger(
             JabberwockyComponentConnection.class.getName());
@@ -243,8 +248,12 @@ public class JabberwockyComponentConnection implements Runnable {
     }
     
     public void start(ExecutorService ex, XMPPComponent comp) {
+
         ApplicationPropertyBag props = config.getProperties();        
         executorService = ex;
+
+		if (logger.isLoggable(Level.INFO))
+			logger.log(Level.INFO, "Starting all listeners");
         
 		xmppHolder = new AtomicReference<>(comp);
         
@@ -260,11 +269,14 @@ public class JabberwockyComponentConnection implements Runnable {
         keepAliveThread = new KeepAlive(pktWriter
                 , Utility.property(props, Configurables.KEEP_ALIVE, 20000L));
         
-        readerFuture = ex.submit(pktReader);
-        writerFuture = ex.submit(pktWriter);
+        readerFuture = executorService.submit(pktReader);
+        writerFuture = executorService.submit(pktWriter);
         
-        thisFuture = ex.submit(this);          
-        keepAliveFuture = ex.submit(keepAliveThread);
+        thisFuture = executorService.submit(this);          
+        keepAliveFuture = executorService.submit(keepAliveThread);
+
+		System.out.println("-------> thisFuture: this" + this);
+		System.out.println("-------> thisFuture: isDone:" + thisFuture.isDone());
     }
 
 	public void stopReceiving() {
@@ -289,23 +301,29 @@ public class JabberwockyComponentConnection implements Runnable {
 			}
 		};
 		xmppHolder.set(c);
+
+		if (logger.isLoggable(Level.INFO))
+			logger.log(Level.INFO, "Stopping packets dispatcher thread");
 	}
 
-    @Override
-    public void run() {  
+	@Override
+	public void run() {  
+
+		System.out.println("----------> in packet dispatcher");
+
         if (logger.isLoggable(Level.INFO))
             logger.log(Level.INFO, "Starting packet dispatcher thread");
         
-        List<Packet> result;
-        
         while (!stop) {
             Packet in = inQueue.read();
+
             if (null == in)
                 continue;
+
             if (logger.isLoggable(Level.FINER))
                 logger.log(Level.FINER, "Routing to component: {0}", in.toString());
             try {
-				result = xmppHolder.get().processPacket(in);
+				List<Packet> result = xmppHolder.get().processPacket(in);
                 if ((null != result) || (result.size() > 0))
                     for (Packet p: result) {
                     if (logger.isLoggable(Level.FINER))
@@ -317,5 +335,18 @@ public class JabberwockyComponentConnection implements Runnable {
             }
         }
     }        
+
+	//ManagedTask
+	@Override
+	public ManagedTaskListener getManagedTaskListener() {
+		return (null);
+	}
+
+	@Override
+	public Map<String, String> getExecutionProperties() {
+		Map<String, String> props = new HashMap<>();
+		props.put(LONGRUNNING_HINT, "true");
+		return (props);
+	}
 
 }
