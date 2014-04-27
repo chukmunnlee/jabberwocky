@@ -3,7 +3,6 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package at.jabberwocky.impl.web;
 
 import at.jabberwocky.api.ComponentLifecycleEvent;
@@ -36,25 +35,27 @@ import javax.servlet.http.HttpServletResponse;
  * @author project
  */
 @WebServlet(urlPatterns = {"/jabberwocky", "/jabberwocky/*"},
-		loadOnStartup = 1, asyncSupported = true)
+        loadOnStartup = 1, asyncSupported = true)
 public class JabberwockyServlet extends HttpServlet {
 
-	private static final Logger logger = Logger.getLogger(JabberwockyServlet.class.getName());
+    private static final Logger logger = Logger.getLogger(JabberwockyServlet.class.getName());
 
-	@Override
-	public void init() throws ServletException {
+    @Override
+    public void init() throws ServletException {
 
-		ServletContext ctx = getServletContext();
+        ServletContext ctx = getServletContext();
 
-		AtomicBoolean startupLock = (AtomicBoolean)ctx.getAttribute(Constants.XMPP_CONNECTION_LOCK);
+        AtomicBoolean startupLock = (AtomicBoolean) ctx.getAttribute(Constants.XMPP_CONNECTION_LOCK);
 
-		if (!startupLock.compareAndSet(false, true))
-			return;
+        if (!startupLock.compareAndSet(false, true)) {
+            return;
+        }
 
-		if (logger.isLoggable(Level.INFO))
-			logger.log(Level.INFO, "Starting Jabberwocky connection");
+        if (logger.isLoggable(Level.INFO)) {
+            logger.log(Level.INFO, "Starting Jabberwocky connection");
+        }
 
-        XMPPComponent xmppComponent = (XMPPComponent)getServletContext()
+        XMPPComponent xmppComponent = (XMPPComponent) getServletContext()
                 .getAttribute(Constants.XMPP_COMPONENT_OBJECT);
 
         if (null == xmppComponent) {
@@ -64,114 +65,117 @@ public class JabberwockyServlet extends HttpServlet {
 
         SubdomainConfiguration config = xmppComponent.getConfiguration();
 
-		JabberwockyComponentConnection connection;
+        JabberwockyComponentConnection connection;
         ManagedExecutorService executor;
         String name = config.getProperties()
-				.get(Configurables.EXECUTOR_SERVICE).getValue();
+                .get(Configurables.EXECUTOR_SERVICE).getValue();
 
-		if (logger.isLoggable(Level.INFO))
-			logger.log(Level.INFO, "Connecting to {0}", config.getDomain());
+        if (logger.isLoggable(Level.INFO)) {
+            logger.log(Level.INFO, "Connecting to {0}", config.getDomain());
+        }
 
-		BeanManager bm = CDI.current().getBeanManager();
+        BeanManager bm = CDI.current().getBeanManager();
 
         //Fire preConnect        
-		if (logger.isLoggable(Level.FINE))
-			logger.log(Level.FINE, "Fire PreConnect event");
-		CDIUtilities.fire(xmppComponent, config
-				, ComponentLifecycleEvent.Phase.PreConnect, bm);
+        if (logger.isLoggable(Level.FINE)) {
+            logger.log(Level.FINE, "Fire PreConnect event");
+        }
+        CDIUtilities.fire(xmppComponent, config, ComponentLifecycleEvent.Phase.PreConnect, bm);
 
-		try {
+        try {
             connection = new JabberwockyComponentConnection(config);
             connection.connect();
         } catch (XMPPComponentException ex) {
             logger.log(Level.SEVERE, "Connection problem. Stopped", ex);
-			return;
+            return;
         }
 
         ctx.setAttribute(Constants.XMPP_COMPONENT_CONNECTION, connection);
 
         //Fire postConnect
-		if (logger.isLoggable(Level.FINE))
-			logger.log(Level.FINE, "Fire PostConnect event");
-		CDIUtilities.fire(xmppComponent, config
-				, ComponentLifecycleEvent.Phase.PostConnect, bm);
+        if (logger.isLoggable(Level.FINE)) {
+            logger.log(Level.FINE, "Fire PostConnect event");
+        }
+        CDIUtilities.fire(xmppComponent, config, ComponentLifecycleEvent.Phase.PostConnect, bm);
 
-		//Start receiving packets
-		if (logger.isLoggable(Level.INFO))
-			logger.log(Level.INFO, "Starting XMPPComponent: {0}"
-					, config.getProperties().get(Configurables.XMPP_COMPONENT));
+        //Start receiving packets
+        if (logger.isLoggable(Level.INFO)) {
+            logger.log(Level.INFO, "Starting XMPPComponent: {0}", config.getProperties().get(Configurables.XMPP_COMPONENT));
+        }
 
         try {
             executor = (ManagedExecutorService) InitialContext.doLookup(name);
         } catch (NamingException ex) {
             logger.log(Level.SEVERE, "Cannot get executor service: " + name, ex);
             return;
-        }                
+        }
 
-		connection.start(executor, xmppComponent);		
-	}
+        connection.start(executor, xmppComponent);
+    }
 
-	@Override
-	public void destroy() {
+    @Override
+    public void destroy() {
 
-		boolean toStart = (Boolean)getServletContext().getAttribute(
-				Constants.XMPP_COMPONENT_TO_START);
-		if (!toStart)
-			return;
-        
+        boolean toStart = (Boolean) getServletContext().getAttribute(
+                Constants.XMPP_COMPONENT_TO_START);
+        if (!toStart) {
+            return;
+        }
+
         logger.log(Level.INFO, "Destroying Jabberwocky context");
-        
-		ServletContext ctx = getServletContext();
-        XMPPComponent xmppComponent = (XMPPComponent)ctx.getAttribute(
-				Constants.XMPP_COMPONENT_OBJECT);
-		JabberwockyComponentConnection connection = (JabberwockyComponentConnection)
-				ctx.getAttribute(Constants.XMPP_COMPONENT_CONNECTION);
+
+        ServletContext ctx = getServletContext();
+        XMPPComponent xmppComponent = (XMPPComponent) ctx.getAttribute(
+                Constants.XMPP_COMPONENT_OBJECT);
+        JabberwockyComponentConnection connection = (JabberwockyComponentConnection) ctx.getAttribute(Constants.XMPP_COMPONENT_CONNECTION);
         SubdomainConfiguration config = xmppComponent.getConfiguration();
         String name = config.getProperties().get(EXECUTOR_SERVICE).getValue();
 
-		if (logger.isLoggable(Level.INFO))
-			logger.log(Level.INFO, "Stop dispatching packets to XMPPComponent");
-		connection.stopReceiving();
+        if (logger.isLoggable(Level.INFO)) {
+            logger.log(Level.INFO, "Stop dispatching packets to XMPPComponent");
+        }
+        connection.stopReceiving();
 
-		//Fire PreDisconnect
-		BeanManager bm = CDI.current().getBeanManager();
-		if (logger.isLoggable(Level.FINE))
-			logger.log(Level.FINE, "Fire PreDisconnect event");
-		CDIUtilities.fire(xmppComponent, config
-				, ComponentLifecycleEvent.Phase.PreDisconnect, bm);
+        //Fire PreDisconnect
+        BeanManager bm = CDI.current().getBeanManager();
+        if (logger.isLoggable(Level.FINE)) {
+            logger.log(Level.FINE, "Fire PreDisconnect event");
+        }
+        CDIUtilities.fire(xmppComponent, config, ComponentLifecycleEvent.Phase.PreDisconnect, bm);
 
         //Shutdown XMPP listener thread
-        if (logger.isLoggable(Level.INFO))
+        if (logger.isLoggable(Level.INFO)) {
             logger.log(Level.INFO, "Closing connection to {0}", config.getDomain());
-		connection.close();
+        }
+        connection.close();
 
-		//Fire PostDisconnect
-		if (logger.isLoggable(Level.FINE))
-			logger.log(Level.FINE, "Fire PreDisconnect event");
-		CDIUtilities.fire(xmppComponent, config
-				, ComponentLifecycleEvent.Phase.PostDisconnect, bm);
-        
+        //Fire PostDisconnect
+        if (logger.isLoggable(Level.FINE)) {
+            logger.log(Level.FINE, "Fire PreDisconnect event");
+        }
+        CDIUtilities.fire(xmppComponent, config, ComponentLifecycleEvent.Phase.PostDisconnect, bm);
+
 		//Do I need to shutdown the service ?
         //Shutdown executor - only shutdown if it is not default service
 		/*
-        if (!(isNullOrEmpty(name) || Constants.DEFAULT_SERVICE.endsWith(name))) {
-            if (logger.isLoggable(Level.INFO)) {
-                logger.log(Level.INFO, "Shutting down executor: {0}", name);
-            }
-            try {
-                ManagedExecutorService executor = 
-						(ManagedExecutorService) InitialContext.doLookup(name);
-                executor.shutdownNow();
-            } catch (NamingException ex) {
-                logger.log(Level.WARNING, "Cannot get executor service: {0}", name);
-            }
-        } */
-	}
+         if (!(isNullOrEmpty(name) || Constants.DEFAULT_SERVICE.endsWith(name))) {
+         if (logger.isLoggable(Level.INFO)) {
+         logger.log(Level.INFO, "Shutting down executor: {0}", name);
+         }
+         try {
+         ManagedExecutorService executor = 
+         (ManagedExecutorService) InitialContext.doLookup(name);
+         executor.shutdownNow();
+         } catch (NamingException ex) {
+         logger.log(Level.WARNING, "Cannot get executor service: {0}", name);
+         }
+         } */
+    }
 
-	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp) 
-			throws ServletException, IOException {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
 
-		resp.setStatus(HttpServletResponse.SC_OK);
-	}
+        resp.setStatus(HttpServletResponse.SC_OK);
+    }
 }

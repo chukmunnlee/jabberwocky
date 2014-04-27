@@ -39,7 +39,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.jivesoftware.util.*;
+//import org.jivesoftware.util.*;
 
 /**
  * A collection of utility methods for String objects.
@@ -326,8 +326,9 @@ public class StringUtils {
         // Encode the String. We pass in a flag to specify that line
         // breaks not be added. This is consistent with our previous base64
         // implementation. Section 2.1 of 3548 (base64 spec) also specifies
-        // no line breaks by default.
-        return Base64.encodeBytes(data, Base64.DONT_BREAK_LINES);
+        // no line breaks by default.        
+        return (java.util.Base64.getEncoder().encodeToString(data));
+        //return org.jivesoftware.util.Base64.encodeBytes(data, org.jivesoftware.util.Base64.DONT_BREAK_LINES);
     }
 
     /**
@@ -337,7 +338,8 @@ public class StringUtils {
      * @return the decoded String.
      */
     public static byte[] decodeBase64(String data) {
-        return Base64.decode(data);
+        return (Base64.getDecoder().decode(data));
+        //return org.jivesoftware.smack.util.Base64.decode(data);
     }
 
     /**
@@ -437,7 +439,9 @@ public class StringUtils {
         try {                        
             MessageDigest md = MessageDigest.getInstance("SHA-1");
             byte[] digest = md.digest(builder.toString().getBytes());
-            return (Base64.encodeBytes(digest));
+            //Base64.getEncoder().e
+            return (Base64.getEncoder().encodeToString(digest));
+            //return (org.jivesoftware.util.Base64.encodeBytes(digest));
         } catch (NoSuchAlgorithmException ex) {
             logger.log(Level.SEVERE, "calculateEntityHash", ex);
         }
