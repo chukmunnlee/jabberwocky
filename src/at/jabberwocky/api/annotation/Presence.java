@@ -19,6 +19,7 @@ import javax.inject.Qualifier;
 @Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER, ElementType.METHOD})
 @Trait
 public @interface Presence {
+
     //Parameter name
     public String value() default "";
 

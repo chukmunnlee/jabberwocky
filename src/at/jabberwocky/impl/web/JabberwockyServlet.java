@@ -47,13 +47,11 @@ public class JabberwockyServlet extends HttpServlet {
 
         AtomicBoolean startupLock = (AtomicBoolean) ctx.getAttribute(Constants.XMPP_CONNECTION_LOCK);
 
-        if (!startupLock.compareAndSet(false, true)) {
-            return;
-        }
+        if (!startupLock.compareAndSet(false, true))
+            return;        
 
-        if (logger.isLoggable(Level.INFO)) {
-            logger.log(Level.INFO, "Starting Jabberwocky connection");
-        }
+        if (logger.isLoggable(Level.INFO))
+            logger.log(Level.INFO, "Starting Jabberwocky connection");        
 
         XMPPComponent xmppComponent = (XMPPComponent) getServletContext()
                 .getAttribute(Constants.XMPP_COMPONENT_OBJECT);
@@ -70,9 +68,8 @@ public class JabberwockyServlet extends HttpServlet {
         String name = config.getProperties()
                 .get(Configurables.EXECUTOR_SERVICE).getValue();
 
-        if (logger.isLoggable(Level.INFO)) {
-            logger.log(Level.INFO, "Connecting to {0}", config.getDomain());
-        }
+        if (logger.isLoggable(Level.INFO))
+            logger.log(Level.INFO, "Connecting to {0}", config.getDomain());        
 
         BeanManager bm = CDI.current().getBeanManager();
 
@@ -155,7 +152,7 @@ public class JabberwockyServlet extends HttpServlet {
         }
         CDIUtilities.fire(xmppComponent, config, ComponentLifecycleEvent.Phase.PostDisconnect, bm);
 
-		//Do I need to shutdown the service ?
+        //Do I need to shutdown the service ?
         //Shutdown executor - only shutdown if it is not default service
 		/*
          if (!(isNullOrEmpty(name) || Constants.DEFAULT_SERVICE.endsWith(name))) {

@@ -12,8 +12,6 @@ import java.util.*;
 import javax.enterprise.context.NormalScope;
 import javax.inject.Scope;
 
-
-
 /**
  *
  * @author projects
@@ -21,20 +19,20 @@ import javax.inject.Scope;
 public class ClassNode implements Comparable<ClassNode>, Iterable<MethodNode> {
 
     private final Class<?> handler;
-    private final Annotation[] annotations;    
+    private final Annotation[] annotations;
     private final boolean cdi;
 
     private MethodNode[] methods;
     private FieldNode[] fields;
-    
+
     public ClassNode(Class<?> h, Annotation[] a) {
         handler = h;
         annotations = a;
-        methods = new MethodNode[0];   
-        cdi = (handler.isAnnotationPresent(NormalScope.class) 
-				|| handler.isAnnotationPresent(Scope.class));
+        methods = new MethodNode[0];
+        cdi = (handler.isAnnotationPresent(NormalScope.class)
+                || handler.isAnnotationPresent(Scope.class));
     }
-    
+
     public boolean isCDIManaged() {
         return (cdi);
     }
@@ -58,6 +56,7 @@ public class ClassNode implements Comparable<ClassNode>, Iterable<MethodNode> {
     public void setFields(FieldNode[] f) {
         fields = f;
     }
+
     public FieldNode[] getFields() {
         return (fields);
     }
@@ -69,17 +68,18 @@ public class ClassNode implements Comparable<ClassNode>, Iterable<MethodNode> {
     public String className() {
         return (handler.getName());
     }
-    
+
     public Class<?> getJavaClass() {
         return (handler);
     }
 
     public boolean matches(Class<? extends Annotation>... toCompare) {
 
-        for (Class<? extends Annotation> c : toCompare) {            
+        for (Class<? extends Annotation> c : toCompare) {
             for (Annotation m : annotations) {
-                if (m.annotationType() != c)
-                    return (false);                
+                if (m.annotationType() != c) {
+                    return (false);
+                }
             }
         }
 
@@ -94,24 +94,28 @@ public class ClassNode implements Comparable<ClassNode>, Iterable<MethodNode> {
         return (v.visit(this));
     }
 
-    public static ClassNode create(Class<?> c, Class<? extends Annotation> mainAnnot
-            , Class<? extends Annotation>[] msgSpecific) {
-        
-        Set<Annotation> annotSet = new HashSet<>();        
-        if (!c.isAnnotationPresent(mainAnnot))
+    public static ClassNode create(Class<?> c, Class<? extends Annotation> mainAnnot, Class<? extends Annotation>[] msgSpecific) {
+
+        Set<Annotation> annotSet = new HashSet<>();
+        if (!c.isAnnotationPresent(mainAnnot)) {
             return (null);
-        
+        }
+
         annotSet.add(c.getAnnotation(mainAnnot));
 
-		//Common annotations
-		for (Class<? extends Annotation> a: Constants.COMMON_ANNOTATIONS)
-			if (c.isAnnotationPresent(a))
-				annotSet.add(c.getAnnotation(a));
-                
-		//Handler specific
-        for (Class<? extends Annotation> a : msgSpecific) 
-            if (c.isAnnotationPresent(a))
-                annotSet.add(c.getAnnotation(a));         
+        //Common annotations
+        for (Class<? extends Annotation> a : Constants.COMMON_ANNOTATIONS) {
+            if (c.isAnnotationPresent(a)) {
+                annotSet.add(c.getAnnotation(a));
+            }
+        }
+
+        //Handler specific
+        for (Class<? extends Annotation> a : msgSpecific) {
+            if (c.isAnnotationPresent(a)) {
+                annotSet.add(c.getAnnotation(a));
+            }
+        }
 
         ClassNode cn = new ClassNode(c, annotSet.toArray(new Annotation[]{}));
         //cn.setFields(FieldNode.create(c, Inject.class));
@@ -121,11 +125,7 @@ public class ClassNode implements Comparable<ClassNode>, Iterable<MethodNode> {
 
     @Override
     public int compareTo(ClassNode o) {
-        return (Utility.orderIt(handler.getAnnotation(Order.class)
-                , o.handler.getAnnotation(Order.class)
-                , annotations.length, o.annotationCount()
-                , handler.getClass().getName()
-                , o.className()));
+        return (Utility.orderIt(handler.getAnnotation(Order.class), o.handler.getAnnotation(Order.class), annotations.length, o.annotationCount(), handler.getClass().getName(), o.className()));
     }
 
     @Override
@@ -156,7 +156,7 @@ public class ClassNode implements Comparable<ClassNode>, Iterable<MethodNode> {
         @Override
         public void remove() {
             throw new UnsupportedOperationException("Not supported.");
-        }        
+        }
     }
 
     @Override

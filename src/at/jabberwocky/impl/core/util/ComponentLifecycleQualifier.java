@@ -3,7 +3,6 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package at.jabberwocky.impl.core.util;
 
 import at.jabberwocky.api.ComponentLifecycleEvent;
@@ -14,18 +13,18 @@ import javax.enterprise.util.AnnotationLiteral;
  *
  * @author projects
  */
-public class ComponentLifecycleQualifier extends AnnotationLiteral<ComponentLifecycle> 
-	implements ComponentLifecycle {
+public class ComponentLifecycleQualifier extends AnnotationLiteral<ComponentLifecycle>
+        implements ComponentLifecycle {
 
-	private final ComponentLifecycleEvent.Phase phase;
+    private final ComponentLifecycleEvent.Phase phase;
 
-	public ComponentLifecycleQualifier(ComponentLifecycleEvent.Phase p) {
-		phase = p;
-	}
+    public ComponentLifecycleQualifier(ComponentLifecycleEvent.Phase p) {
+        phase = p;
+    }
 
-	@Override
-	public ComponentLifecycleEvent.Phase value() {
-		return (phase);
-	}
-	
+    @Override
+    public ComponentLifecycleEvent.Phase value() {
+        return (phase);
+    }
+
 }

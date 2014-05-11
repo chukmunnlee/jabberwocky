@@ -3,7 +3,6 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package at.jabberwocky.api.iq;
 
 import at.jabberwocky.impl.core.util.Utility;
@@ -14,30 +13,31 @@ import javax.xml.bind.annotation.XmlRootElement;
  *
  * @author project
  */
-@XmlRootElement(name="item")
+@XmlRootElement(name = "item")
 public class ItemDescription {
-    
-    private String jid;    
+
+    private String jid;
     private String node;
     private String name;
-    
-    public ItemDescription() { }
-        
+
+    public ItemDescription() {
+    }
+
     public ItemDescription(String jid) {
         this.jid = jid;
     }
-    
+
     public ItemDescription(String jid, String name) {
         this.jid = jid;
         this.name = name;
     }
-    
+
     public ItemDescription(String jid, String node, String name) {
         this.jid = jid;
         this.node = node;
         this.name = name;
     }
-    
+
     @XmlAttribute
     public String getJid() {
         return jid;
@@ -46,7 +46,7 @@ public class ItemDescription {
     public void setJid(String jid) {
         this.jid = jid;
     }
-    
+
     @XmlAttribute
     public String getName() {
         return name;
@@ -66,30 +66,34 @@ public class ItemDescription {
     }
 
     @Override
-    public String toString() {        
+    public String toString() {
         return "Item{" + create() + '}';
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof ItemDescription))
+        if (!(obj instanceof ItemDescription)) {
             return (false);
+        }
         return (toString().equals(obj.toString()));
     }
 
     @Override
     public int hashCode() {
         return (toString().hashCode());
-    }        
-    
+    }
+
     private String create() {
         StringBuilder sb = new StringBuilder();
-        if (!Utility.isNullOrEmpty(jid.toString()))
+        if (!Utility.isNullOrEmpty(jid.toString())) {
             sb.append("jid=").append(jid.toString());
-        if (!Utility.isNullOrEmpty(node))
+        }
+        if (!Utility.isNullOrEmpty(node)) {
             sb.append(", node=").append(node);
-        if (!Utility.isNullOrEmpty(name))
+        }
+        if (!Utility.isNullOrEmpty(name)) {
             sb.append(", name=").append(name);
+        }
         return (sb.toString());
-    }                
+    }
 }

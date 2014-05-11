@@ -34,31 +34,33 @@ public class ComponentConnectionTest implements XMPPComponent {
         config.setDomain("batcomputer");
         config.setName("jabberwocky");
         config.setSharedSecret("growl");
-        
+
         service = Executors.newFixedThreadPool(3);
     }
 
     @Test
-    public void shouldConnect() throws XMPPComponentException {        
+    public void shouldConnect() throws XMPPComponentException {
         JabberwockyComponentConnection connection = new JabberwockyComponentConnection(config);
-        
+
         Logger logger = LogManager.getLogManager()
                 .getLogger(JabberwockyComponentConnection.class.getName());
-        
+
         logger.setLevel(Level.ALL);
         connection.connect();
 
-        connection.start(service,  this);
-        
+        connection.start(service, this);
+
         try {
             Thread.sleep(30 * 1000);
-        } catch (InterruptedException ex) { }
+        } catch (InterruptedException ex) {
+        }
         connection.close();
     }
 
     @Override
-    public void initialize(Set<Class<?>> handlers, SubdomainConfiguration config) 
-            throws XMPPComponentException {  }
+    public void initialize(Set<Class<?>> handlers, SubdomainConfiguration config)
+            throws XMPPComponentException {
+    }
 
     @Override
     public SubdomainConfiguration getConfiguration() {
@@ -71,15 +73,19 @@ public class ComponentConnectionTest implements XMPPComponent {
         return (new LinkedList<>());
     }
 
-	@Override
-	public void preConnect() throws XMPPComponentException { }
+    @Override
+    public void preConnect() throws XMPPComponentException {
+    }
 
-	@Override
-	public void postConnect() throws XMPPComponentException { }
+    @Override
+    public void postConnect() throws XMPPComponentException {
+    }
 
-	@Override
-	public void preDisconnect() throws XMPPComponentException { }
+    @Override
+    public void preDisconnect() throws XMPPComponentException {
+    }
 
-	@Override
-	public void postDisconnect() throws XMPPComponentException { }
+    @Override
+    public void postDisconnect() throws XMPPComponentException {
+    }
 }

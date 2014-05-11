@@ -3,7 +3,6 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package at.jabberwocky.api.annotation;
 
 import at.jabberwocky.api.ComponentLifecycleEvent;
@@ -21,6 +20,7 @@ import javax.inject.Qualifier;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.PARAMETER, ElementType.FIELD})
 public @interface ComponentLifecycle {
-	public ComponentLifecycleEvent.Phase value();
-	
+
+    public ComponentLifecycleEvent.Phase value();
+
 }

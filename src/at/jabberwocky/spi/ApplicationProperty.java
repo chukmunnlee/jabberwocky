@@ -17,7 +17,8 @@ public class ApplicationProperty {
     private String name = "";
     private String value = "";
 
-    public ApplicationProperty() { }
+    public ApplicationProperty() {
+    }
 
     public ApplicationProperty(String n, String v) {
         name = n;
@@ -28,6 +29,7 @@ public class ApplicationProperty {
     public String getName() {
         return (name);
     }
+
     public void setName(String n) {
         name = n;
     }
@@ -36,6 +38,7 @@ public class ApplicationProperty {
     public String getValue() {
         return (value);
     }
+
     public void setValue(String v) {
         value = v;
     }

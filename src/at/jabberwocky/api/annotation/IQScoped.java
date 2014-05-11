@@ -19,4 +19,5 @@ import javax.enterprise.context.NormalScope;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD})
 @Inherited
-public @interface IQScoped { }
+public @interface IQScoped {
+}

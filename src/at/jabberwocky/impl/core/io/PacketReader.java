@@ -3,7 +3,6 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package at.jabberwocky.impl.core.io;
 
 import java.io.IOException;
@@ -30,66 +29,75 @@ import org.xmpp.packet.Roster;
  */
 public class PacketReader implements Runnable {
 
-	private static final Logger logger = Logger.getLogger(PacketReader.class.getName());
+    private static final Logger logger = Logger.getLogger(PacketReader.class.getName());
 
-	private final XmlPullParser parser;
-	private final Reader reader;
-	private final DocumentFactory docFactory;
+    private final XmlPullParser parser;
+    private final Reader reader;
+    private final DocumentFactory docFactory;
 
-	private final PacketQueue queue;
-	private final AtomicBoolean stop;
+    private final PacketQueue queue;
+    private final AtomicBoolean stop;
 
-	public PacketReader(XmlPullParser p, Reader r, PacketQueue q)  {
-		parser = p;
-		reader = r;
-		queue = q;
-		docFactory = DocumentFactory.getInstance();
-		stop = new AtomicBoolean(false);
-	}
-				
-	@Override
-	public void run() {
-        if (logger.isLoggable(Level.INFO))
+    public PacketReader(XmlPullParser p, Reader r, PacketQueue q) {
+        parser = p;
+        reader = r;
+        queue = q;
+        docFactory = DocumentFactory.getInstance();
+        stop = new AtomicBoolean(false);
+    }
+
+    @Override
+    public void run() {
+        if (logger.isLoggable(Level.INFO)) {
             logger.log(Level.INFO, "Starting PacketReader");
-		while (!stop.get())
-			try {
-				Packet pkt = getPacket();
-				if (null == pkt)
-					continue;
-				queue.write(pkt);
-                if (logger.isLoggable(Level.FINER))
+        }
+        while (!stop.get()) {
+            try {
+                Packet pkt = getPacket();
+                if (null == pkt) {
+                    continue;
+                }
+                queue.write(pkt);
+                if (logger.isLoggable(Level.FINER)) {
                     logger.log(Level.FINER, ">>> Inbound: {0}" + pkt.toString());
-			} catch (Throwable ex) {
-				logger.log(Level.SEVERE, "PacketReader.run() exception", ex);
-			}
-        if (logger.isLoggable(Level.INFO))
+                }
+            } catch (Throwable ex) {
+                logger.log(Level.SEVERE, "PacketReader.run() exception", ex);
+            }
+        }
+        if (logger.isLoggable(Level.INFO)) {
             logger.log(Level.INFO, "PacketReader stopped");
-	}
+        }
+    }
 
-	public void stop() {
-		stop.set(true);
-	}
+    public void stop() {
+        stop.set(true);
+    }
 
-	private Packet getPacket() throws Exception {
-		Element doc = parseDocument().getRootElement();
-		if (null == doc)
-			return (null);
+    private Packet getPacket() throws Exception {
+        Element doc = parseDocument().getRootElement();
+        if (null == doc) {
+            return (null);
+        }
 
-		String tag = doc.getName();
-		if ("message".equals(tag))
-			return (new Message(doc));
+        String tag = doc.getName();
+        if ("message".equals(tag)) {
+            return (new Message(doc));
+        }
 
-		if ("presence".equals(tag))
-			return (new Presence(doc));
+        if ("presence".equals(tag)) {
+            return (new Presence(doc));
+        }
 
-		Element query = doc.element("query");
-        if (query != null && "jabber:iq:roster".equals(query.getNamespaceURI()))
+        Element query = doc.element("query");
+        if (query != null && "jabber:iq:roster".equals(query.getNamespaceURI())) {
             return new Roster(doc);
+        }
 
-		return new IQ(doc);
-	}
+        return new IQ(doc);
+    }
 
-	//Copied wholesale from XPPPacketReader.java from Whack
+    //Copied wholesale from XPPPacketReader.java from Whack
     private Document parseDocument() throws DocumentException, IOException, XmlPullParserException {
         DocumentFactory df = docFactory;
         Document document = df.createDocument();
@@ -105,24 +113,24 @@ public class PacketReader implements Runnable {
                     int loc = text.indexOf(" ");
                     if (loc >= 0) {
                         document.addProcessingInstruction(text.substring(0, loc), text.substring(loc + 1));
-                    }
-                    else
+                    } else {
                         document.addProcessingInstruction(text, "");
+                    }
                     break;
                 }
                 case XmlPullParser.COMMENT: {
-                    if (parent != null)
+                    if (parent != null) {
                         parent.addComment(pp.getText());
-                    else
+                    } else {
                         document.addComment(pp.getText());
+                    }
                     break;
                 }
                 case XmlPullParser.CDSECT: {
                     String text = pp.getText();
                     if (parent != null) {
                         parent.addCDATA(text);
-                    }
-                    else {
+                    } else {
                         if (text.trim().length() > 0) {
                             throw new DocumentException("Cannot have text content outside of the root document");
                         }
@@ -134,8 +142,7 @@ public class PacketReader implements Runnable {
                     String text = pp.getText();
                     if (parent != null) {
                         parent.addText(text);
-                    }
-                    else {
+                    } else {
                         if (text.trim().length() > 0) {
                             throw new DocumentException("Cannot have an entityref outside of the root document");
                         }
@@ -151,28 +158,28 @@ public class PacketReader implements Runnable {
                     // Do not include the namespace if this is the start tag of a new packet
                     // This avoids including "jabber:client", "jabber:server" or
                     // "jabber:component:accept"
-                    if ("jabber:client".equals(qname.getNamespaceURI()) ||
-                            "jabber:server".equals(qname.getNamespaceURI()) ||
-                            "jabber:component:accept".equals(qname.getNamespaceURI()) ||
-                            "http://jabber.org/protocol/httpbind".equals(qname.getNamespaceURI())) {
+                    if ("jabber:client".equals(qname.getNamespaceURI())
+                            || "jabber:server".equals(qname.getNamespaceURI())
+                            || "jabber:component:accept".equals(qname.getNamespaceURI())
+                            || "http://jabber.org/protocol/httpbind".equals(qname.getNamespaceURI())) {
                         newElement = df.createElement(pp.getName());
-                    }
-                    else {
+                    } else {
                         newElement = df.createElement(qname);
                     }
                     int nsStart = pp.getNamespaceCount(pp.getDepth() - 1);
                     int nsEnd = pp.getNamespaceCount(pp.getDepth());
-                    for (int i = nsStart; i < nsEnd; i++)
-                        if (pp.getNamespacePrefix(i) != null)
+                    for (int i = nsStart; i < nsEnd; i++) {
+                        if (pp.getNamespacePrefix(i) != null) {
                             newElement.addNamespace(pp.getNamespacePrefix(i), pp.getNamespaceUri(i));
+                        }
+                    }
                     for (int i = 0; i < pp.getAttributeCount(); i++) {
                         QName qa = (pp.getAttributePrefix(i) == null) ? df.createQName(pp.getAttributeName(i)) : df.createQName(pp.getAttributeName(i), pp.getAttributePrefix(i), pp.getAttributeNamespace(i));
                         newElement.addAttribute(qa, pp.getAttributeValue(i));
                     }
                     if (parent != null) {
                         parent.add(newElement);
-                    }
-                    else {
+                    } else {
                         document.add(newElement);
                     }
                     parent = newElement;
@@ -193,17 +200,16 @@ public class PacketReader implements Runnable {
                     String text = pp.getText();
                     if (parent != null) {
                         parent.addText(text);
-                    }
-                    else {
+                    } else {
                         if (text.trim().length() > 0) {
                             throw new DocumentException("Cannot have text content outside of the root document");
                         }
                     }
                     break;
                 }
-                default: 
+                default:
             }
         }
-    }	
+    }
 
 }

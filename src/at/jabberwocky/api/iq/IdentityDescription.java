@@ -3,7 +3,6 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package at.jabberwocky.api.iq;
 
 /**
@@ -18,16 +17,16 @@ import javax.xml.bind.annotation.XmlRootElement;
  *
  * @author projects
  */
-@XmlRootElement(name="identity")
+@XmlRootElement(name = "identity")
 public class IdentityDescription {
-    
+
     private String category;
     private String type;
     private String name;
 
     public IdentityDescription() {
     }
-    
+
     public IdentityDescription(String category, String type) {
         this.category = category;
         this.type = type;
@@ -65,33 +64,37 @@ public class IdentityDescription {
     public void setType(String type) {
         this.type = type;
     }
-    
+
     @Override
-    public String toString() {        
+    public String toString() {
         return "Identity{" + create() + '}';
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof IdentityDescription))
+        if (!(obj instanceof IdentityDescription)) {
             return (false);
+        }
         return (toString().equals(obj.toString()));
     }
 
     @Override
     public int hashCode() {
         return (toString().hashCode());
-    }        
-    
+    }
+
     private String create() {
         StringBuilder sb = new StringBuilder();
-        if (!Utility.isNullOrEmpty(category.toString()))
+        if (!Utility.isNullOrEmpty(category.toString())) {
             sb.append("category=").append(category.toString());
-        if (!Utility.isNullOrEmpty(type))
+        }
+        if (!Utility.isNullOrEmpty(type)) {
             sb.append(", type=").append(type);
-        if (!Utility.isNullOrEmpty(name))
+        }
+        if (!Utility.isNullOrEmpty(name)) {
             sb.append(", name=").append(name);
+        }
         return (sb.toString());
-    }  
-    
+    }
+
 }

@@ -22,7 +22,7 @@ public class ApplicationPropertyBag implements Iterable<ApplicationProperty> {
         return (properties);
     }
 
-    public void setProperties(List<ApplicationProperty> props) {        
+    public void setProperties(List<ApplicationProperty> props) {
         properties = props;
     }
 
@@ -33,35 +33,39 @@ public class ApplicationPropertyBag implements Iterable<ApplicationProperty> {
     public void add(ApplicationProperty prop) {
         String k = prop.getName().trim();
         String v = prop.getValue();
-        for (ApplicationProperty p : properties)
+        for (ApplicationProperty p : properties) {
             if (k.equals(p.getName().trim())) {
                 p.setValue(v);
                 return;
             }
+        }
         properties.add(prop);
     }
-    
+
     public void merge(ApplicationProperty toMerge) {
-        for (ApplicationProperty p: properties)
+        for (ApplicationProperty p : properties) {
             if (p.getName().equals(toMerge.getName())) {
                 p.setValue(toMerge.getValue());
                 return;
             }
+        }
         properties.add(toMerge);
     }
-    
+
     public void merge(ApplicationPropertyBag toMerge) {
-        for (ApplicationProperty p: toMerge)
+        for (ApplicationProperty p : toMerge) {
             merge(p);
+        }
     }
 
     public void remove(String k) {
         String key = k.trim();
-        for (ApplicationProperty p : properties)
+        for (ApplicationProperty p : properties) {
             if (key.equals(p.getName().trim())) {
                 properties.remove(p);
                 return;
             }
+        }
     }
 
     public void remove(ApplicationProperty p) {
@@ -70,9 +74,11 @@ public class ApplicationPropertyBag implements Iterable<ApplicationProperty> {
 
     public ApplicationProperty get(String k) {
         String n = k.trim();
-        for (ApplicationProperty p : properties)
-            if (n.equals(p.getName().trim()))
+        for (ApplicationProperty p : properties) {
+            if (n.equals(p.getName().trim())) {
                 return (p);
+            }
+        }
         return (null);
     }
 

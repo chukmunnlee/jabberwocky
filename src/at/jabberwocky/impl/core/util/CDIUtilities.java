@@ -3,7 +3,6 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package at.jabberwocky.impl.core.util;
 
 import at.jabberwocky.api.ComponentLifecycleEvent;
@@ -18,17 +17,16 @@ import org.xmpp.packet.JID;
  */
 public class CDIUtilities {
 
-	public static void fire(XMPPComponent comp, SubdomainConfiguration config
-			, ComponentLifecycleEvent.Phase p, BeanManager bm) {
+    public static void fire(XMPPComponent comp, SubdomainConfiguration config, ComponentLifecycleEvent.Phase p, BeanManager bm) {
 
-		ComponentLifecycleEvent evt = new ComponentLifecycleEvent(comp);
+        ComponentLifecycleEvent evt = new ComponentLifecycleEvent(comp);
 
-		evt.setComponentJID(new JID(config.getName() + "." + config.getDomain()));
-		evt.setConfiguration(config);
-		evt.setContext(null);
-		evt.setPhase(p);
+        evt.setComponentJID(new JID(config.getName() + "." + config.getDomain()));
+        evt.setConfiguration(config);
+        evt.setContext(null);
+        evt.setPhase(p);
 
-		bm.fireEvent(evt, new ComponentLifecycleQualifier(p));
-	}	
-	
+        bm.fireEvent(evt, new ComponentLifecycleQualifier(p));
+    }
+
 }

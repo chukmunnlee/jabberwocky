@@ -9,6 +9,7 @@ import at.jabberwocky.spi.Trait;
 import java.lang.annotation.*;
 
 import javax.enterprise.context.NormalScope;
+import javax.inject.Qualifier;
 
 /**
  *
@@ -17,11 +18,14 @@ import javax.enterprise.context.NormalScope;
 @NormalScope(passivating = true)
 @Retention(RetentionPolicy.RUNTIME)
 @Trait
-@Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD})
+@Qualifier
+@Target({ElementType.TYPE})
 @Inherited
-public @interface JIDScoped { 
+public @interface JIDScoped {
     /*
-    If we should target full JID
-    */
-    public boolean value() default false;
+     If we should target full JID
+     */        
+    public enum Type { Jid, Full, RequestResponse };
+    
+    public Type value() default Type.Full;
 }

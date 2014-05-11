@@ -3,7 +3,6 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package at.jabberwocky.spi;
 
 import java.lang.annotation.ElementType;
@@ -17,4 +16,5 @@ import java.lang.annotation.Target;
  */
 @Target({ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Trait { }
+public @interface Trait {
+}

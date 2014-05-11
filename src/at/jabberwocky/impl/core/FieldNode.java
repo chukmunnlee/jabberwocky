@@ -2,7 +2,6 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package at.jabberwocky.impl.core;
 
 import at.jabberwocky.impl.core.util.ReflectionHelper;
@@ -10,7 +9,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.LinkedList;
 import java.util.List;
-
 
 /**
  *
@@ -47,11 +45,12 @@ public class FieldNode {
     public static FieldNode[] create(final Class<?> c) {
         List<FieldNode> nodes = new LinkedList<>();
         Annotation an;
-        for (Field f: c.getDeclaredFields()) {
-            List<Annotation> a = ReflectionHelper.allCDIAnnotations(f.getAnnotations());            
-            if (a.size() > 0)
+        for (Field f : c.getDeclaredFields()) {
+            List<Annotation> a = ReflectionHelper.allCDIAnnotations(f.getAnnotations());
+            if (a.size() > 0) {
                 nodes.add(new FieldNode(f, a.toArray(new Annotation[]{})));
+            }
         }
         return (nodes.toArray(new FieldNode[nodes.size()]));
-    }    
+    }
 }

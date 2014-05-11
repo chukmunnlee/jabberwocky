@@ -10,5 +10,5 @@ package at.jabberwocky.api;
  * @author project
  */
 public class ComponentContext {
-    
+
 }

@@ -19,6 +19,7 @@ import javax.inject.Qualifier;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER, ElementType.METHOD})
 public @interface Message {
+
     //Parameter name
     public String value() default "";
 

@@ -3,7 +3,6 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package at.jabberwocky.api;
 
 import at.jabberwocky.spi.SubdomainConfiguration;
@@ -17,54 +16,61 @@ import org.xmpp.packet.JID;
  */
 public class ComponentLifecycleEvent extends EventObject {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public enum Phase { PreConnect, PostConnect, PreDisconnect, PostDisconnect };
+    public enum Phase {
 
-	private Phase phase;
-	private SubdomainConfiguration config;
-	private ComponentContext ctx;
-	private JID jid;
-	private final long time = (new Date()).getTime();
+        PreConnect, PostConnect, PreDisconnect, PostDisconnect
+    };
 
-	public ComponentLifecycleEvent() {
-		super(null);
-	}
+    private Phase phase;
+    private SubdomainConfiguration config;
+    private ComponentContext ctx;
+    private JID jid;
+    private final long time = (new Date()).getTime();
 
-	public ComponentLifecycleEvent(Object obj) {
-		super (obj);
-	}
+    public ComponentLifecycleEvent() {
+        super(null);
+    }
 
-	public Phase getPhase() {
-		return phase;
-	}
-	public void setPhase(Phase phase) {
-		this.phase = phase;
-	}
+    public ComponentLifecycleEvent(Object obj) {
+        super(obj);
+    }
 
-	public SubdomainConfiguration getConfiguration() {
-		return (config);
-	}
-	public void setConfiguration(SubdomainConfiguration c) {
-		config = c;
-	}
+    public Phase getPhase() {
+        return phase;
+    }
 
-	public ComponentContext getContext() {
-		return (ctx);
-	}
-	public void setContext(ComponentContext ctx) {
-		this.ctx = ctx;
-	}
+    public void setPhase(Phase phase) {
+        this.phase = phase;
+    }
 
-	public JID getComponentJID() {
-		return (jid);
-	}
-	public void setComponentJID(JID j) {
-		jid = j;
-	}
+    public SubdomainConfiguration getConfiguration() {
+        return (config);
+    }
 
-	public long getTimestamp() {
-		return (time);
-	}
+    public void setConfiguration(SubdomainConfiguration c) {
+        config = c;
+    }
+
+    public ComponentContext getContext() {
+        return (ctx);
+    }
+
+    public void setContext(ComponentContext ctx) {
+        this.ctx = ctx;
+    }
+
+    public JID getComponentJID() {
+        return (jid);
+    }
+
+    public void setComponentJID(JID j) {
+        jid = j;
+    }
+
+    public long getTimestamp() {
+        return (time);
+    }
 
 }

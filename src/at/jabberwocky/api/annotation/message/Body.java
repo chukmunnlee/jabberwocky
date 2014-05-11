@@ -3,7 +3,6 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package at.jabberwocky.api.annotation.message;
 
 import java.lang.annotation.ElementType;
@@ -20,9 +19,11 @@ import javax.inject.Qualifier;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER})
 public @interface Body {
+
     /**
      * The JID either as a literal or template
-	 * @return 
+     *
+     * @return
      */
     public String value() default "";
 }

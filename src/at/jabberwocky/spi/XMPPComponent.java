@@ -13,20 +13,20 @@ import org.xmpp.packet.Packet;
  *
  * @author project
  */
-public interface XMPPComponent {    
-    
+public interface XMPPComponent {
+
     public void initialize(Set<Class<?>> handlers, SubdomainConfiguration config)
             throws XMPPComponentException;
 
-	public void preConnect() throws XMPPComponentException;
+    public void preConnect() throws XMPPComponentException;
 
-	public void postConnect() throws XMPPComponentException;
+    public void postConnect() throws XMPPComponentException;
 
-	public void preDisconnect() throws XMPPComponentException;
+    public void preDisconnect() throws XMPPComponentException;
 
-	public void postDisconnect() throws XMPPComponentException;
-    
+    public void postDisconnect() throws XMPPComponentException;
+
     public SubdomainConfiguration getConfiguration();
-    
+
     public List<Packet> processPacket(Packet packet) throws XMPPComponentException;
 }

@@ -3,9 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package at.jabberwocky.impl.core.io;
-
 
 import java.io.IOException;
 import java.io.Writer;
@@ -23,83 +21,87 @@ import org.xmpp.packet.Packet;
  */
 public class PacketWriter implements Runnable {
 
-	private static final Logger logger = Logger.getLogger(PacketWriter.class.getName());
+    private static final Logger logger = Logger.getLogger(PacketWriter.class.getName());
 
-	private final XMLWriter xmlWriter;
-	private final Writer writer;
-	private final AtomicBoolean stop;
+    private final XMLWriter xmlWriter;
+    private final Writer writer;
+    private final AtomicBoolean stop;
     private final long keepAlive;
 
-	private final PacketQueue queue;
+    private final PacketQueue queue;
 
-	private final Lock lock;
+    private final Lock lock;
 
-	private long lastWrite = System.currentTimeMillis();
+    private long lastWrite = System.currentTimeMillis();
 
-	public PacketWriter(XMLWriter xw, Writer w, PacketQueue q, long ka) {
-		xmlWriter = xw;
-		writer = w;
-		queue = q;
-		stop = new AtomicBoolean(false);
-		lock = new ReentrantLock();
+    public PacketWriter(XMLWriter xw, Writer w, PacketQueue q, long ka) {
+        xmlWriter = xw;
+        writer = w;
+        queue = q;
+        stop = new AtomicBoolean(false);
+        lock = new ReentrantLock();
         keepAlive = ka;
-	}
+    }
 
-	@Override
-	public void run() {
-        if (logger.isLoggable(Level.INFO))
+    @Override
+    public void run() {
+        if (logger.isLoggable(Level.INFO)) {
             logger.log(Level.INFO, "Starting PacketWriter");
-		while (!stop.get()) {
-			Packet pkt = queue.read();
-			if (null == pkt)
-				continue;
-			lock.lock();
-			try {
-				write(pkt);
-			} finally {
-				lock.unlock();
-			}
-		}
-        if (logger.isLoggable(Level.INFO))
+        }
+        while (!stop.get()) {
+            Packet pkt = queue.read();
+            if (null == pkt) {
+                continue;
+            }
+            lock.lock();
+            try {
+                write(pkt);
+            } finally {
+                lock.unlock();
+            }
+        }
+        if (logger.isLoggable(Level.INFO)) {
             logger.log(Level.OFF, "PacketWriter stopped");
-	}
+        }
+    }
 
-	public void stop() {
-		stop.set(true);
-	}
+    public void stop() {
+        stop.set(true);
+    }
 
-	public void write(Packet pkt) {
-		lock.lock();
-		try {
-			xmlWriter.write(pkt.getElement());
-			xmlWriter.flush();
-			lastWrite = System.currentTimeMillis();
-            if (logger.isLoggable(Level.FINER))
+    public void write(Packet pkt) {
+        lock.lock();
+        try {
+            xmlWriter.write(pkt.getElement());
+            xmlWriter.flush();
+            lastWrite = System.currentTimeMillis();
+            if (logger.isLoggable(Level.FINER)) {
                 logger.log(Level.FINER, "<<< Outbound: {0}" + pkt.toString());
-		} catch (IOException ex) {
-			logger.log(Level.SEVERE, "Cannot send packet: {0}", pkt);
-			logger.log(Level.SEVERE, "Send packet exception", ex);
-		} finally {
-			lock.unlock();
-		} 
-	}
+            }
+        } catch (IOException ex) {
+            logger.log(Level.SEVERE, "Cannot send packet: {0}", pkt);
+            logger.log(Level.SEVERE, "Send packet exception", ex);
+        } finally {
+            lock.unlock();
+        }
+    }
 
-	public void keepAlive() {
-		if ((System.currentTimeMillis() - lastWrite) >= keepAlive) {
-			logger.log(Level.OFF, "Sending keep alive packet");
-			directWrite(" ");
-		}
-	}
+    public void keepAlive() {
+        if ((System.currentTimeMillis() - lastWrite) >= keepAlive) {
+            logger.log(Level.OFF, "Sending keep alive packet");
+            directWrite(" ");
+        }
+    }
 
-	private void directWrite(final String msg) {
-		lock.lock();
-		try {
-			writer.write(msg);
-			writer.flush();
-		} catch (IOException ex) {
-			//TODO do something
-		} finally {
-			lock.unlock();
-		}
-	}
+    private void directWrite(final String msg) {
+        lock.lock();
+        try {
+            writer.write(msg);
+            writer.flush();
+        } catch (IOException ex) {
+            //TODO do something
+        } finally {
+            lock.unlock();
+        }
+    }
 }
