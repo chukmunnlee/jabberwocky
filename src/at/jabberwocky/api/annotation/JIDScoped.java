@@ -25,7 +25,7 @@ public @interface JIDScoped {
     /*
      If we should target full JID
      */        
-    public enum Type { Jid, Full, RequestResponse };
+    public enum Type { Bare, Full, RequestResponse };
     
     public Type value() default Type.Full;
 }
