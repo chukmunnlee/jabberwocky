@@ -39,15 +39,14 @@ public class JabberwockyWebInitializer implements ServletContainerInitializer {
         ctx.setAttribute(Constants.XMPP_COMPONENT_TO_START, toStart);
 
         if (!toStart) {
-            if (logger.isLoggable(Level.INFO)) {
+            if (logger.isLoggable(Level.INFO))
                 logger.log(Level.INFO, "No XMPP message handler found. Not starting component");
-            }
+            
             return;
         }
 
-        if (logger.isLoggable(Level.INFO)) {
-            logger.log(Level.INFO, "Reading xep-0114.xml");
-        }
+        if (logger.isLoggable(Level.INFO))
+            logger.log(Level.INFO, "Reading xep-0114.xml");        
 
         SubdomainConfiguration config = readConfig(ctx);
         config.setProperties(loadAndMergeDefaults(Constants.XMPP_DEFAULTS, config.getProperties()));

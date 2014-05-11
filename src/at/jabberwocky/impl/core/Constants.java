@@ -29,15 +29,6 @@ public class Constants {
     public static final String NAME = "Jabberwocky XMPP framework";
     public static final String VERSION = "0.1 beta";
 
-    public static final String NAMESPACE_DISCO_ITEMS = "http://jabber.org/protocol/disco#items";
-    public static final String NAMESPACE_DISCO_INFO = "http://jabber.org/protocol/disco#info";
-    public static final String NAMESPACE_XMPP_PING = "urn:xmpp:ping";
-    public static final String NAMESPACE_LAST_ACTIVITY = "jabber:iq:last";
-    public static final String NAMESPACE_ENTITY_TIME = "urn:xmpp:time";
-    public static final String NAMESPACE_VCARD_TEMP = "vcard-temp";
-    public static final String NAMESPACE_PERSONAL_EVENTING = "http://jabber.org/protocol/caps";
-    public static final String NAMESPACE_WEB_INTERFACE = "urn:web:interface";
-
     public static final Class[] COMMON_ANNOTATIONS = {
         From.class, To.class
     };
@@ -51,4 +42,6 @@ public class Constants {
     public static final Class[] PRESENCE_ANNOTATIONS = {};
 
     public static final Class[] FIELD_AND_PARAM_ANNOTATIONS = {};
+    
+    public static final String KEY_PACKET = "packet";
 }

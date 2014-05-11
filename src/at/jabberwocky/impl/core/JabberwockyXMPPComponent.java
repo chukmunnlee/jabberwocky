@@ -27,6 +27,7 @@ import org.xmpp.packet.Packet;
 import static at.jabberwocky.impl.core.Constants.*;
 import java.lang.annotation.Annotation;
 import java.util.Collections;
+import java.util.Map;
 
 /**
  *
@@ -149,7 +150,7 @@ public class JabberwockyXMPPComponent implements XMPPComponent {
     }
 
     @Override
-    public List<Packet> processPacket(Packet packet) throws XMPPComponentException {
+    public List<Packet> processPacket(final Packet packet) throws XMPPComponentException {
 
         List<Packet> result = null;
 
@@ -157,15 +158,22 @@ public class JabberwockyXMPPComponent implements XMPPComponent {
             logger.log(Level.FINE, "Incoming: {0}", packet.toString());
         }
 
-        //Process packet
-        System.out.println("--------> in processPacket: ");
-        System.out.println("\t" + packet);
+        //Process packet        
+        Map<String, Object> ctx = CurrentPacketContext.getInstance().start(packet);
+                
 
-        if (logger.isLoggable(Level.FINE)) {
-            logger.log(Level.FINE, "Outgoing:");
-            for (Packet p : result) {
-                logger.log(Level.FINE, "   {0}", p.toString());
+        try {
+
+            if (logger.isLoggable(Level.FINE)) {
+                logger.log(Level.FINE, "Outgoing:");
+                for (Packet p : result) {
+                    logger.log(Level.FINE, "   {0}", p.toString());
+                }
             }
+        } catch (Throwable t) {
+            logger.log(Level.WARNING, "processPacket: " + packet.toString(), t);
+        } finally {
+            CurrentPacketContext.getInstance().end();
         }
 
         return (result);
