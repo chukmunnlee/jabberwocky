@@ -134,33 +134,32 @@ public class JabberwockyXMPPComponent implements XMPPComponent {
     }
 
     @Override
-    public void preDisconnect() {
-
-        if (logger.isLoggable(Level.FINE)) {
+    public void preDisconnect() {       
+        
+        if (logger.isLoggable(Level.FINE))
             logger.log(Level.FINE, "preDisconnect: Jabberwocky XMPPComponent");
-        }
+        
     }
 
     @Override
-    public void postDisconnect() {
-
-        if (logger.isLoggable(Level.FINE)) {
+    public void postDisconnect() {        
+        if (logger.isLoggable(Level.FINE))
             logger.log(Level.FINE, "preDisconnect: Jabberwocky XMPPComponent");
-        }
+        
     }
 
     @Override
     public List<Packet> processPacket(final Packet packet) throws XMPPComponentException {
 
         List<Packet> result = null;
-
-        if (logger.isLoggable(Level.FINE)) {
-            logger.log(Level.FINE, "Incoming: {0}", packet.toString());
-        }
+        
+        if (logger.isLoggable(Level.FINE))
+            logger.log(Level.FINE, "Incoming: {0}", packet.toString());        
+        
+        System.out.println("-------> process packet: " + packet.toString());
 
         //Process packet        
-        Map<String, Object> ctx = CurrentPacketContext.getInstance().start(packet);
-                
+        Map<String, Object> ctx = CurrentPacketContext.getInstance().start(packet);                
 
         try {
 

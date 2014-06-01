@@ -103,13 +103,8 @@ public class MethodNode implements Comparable<MethodNode> {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        System.out.println("---------> method node = " + methodHandle.getName());
-        System.out.println("----------> param annotation = " + paramAnnotation.length);
-        for (int i = 0; i < paramAnnotation.length; i++) {
-            System.out.println("\t-----> " + paramAnnotation[i]);
-            System.out.println("\t=====> " + paramType[i]);
-            sb.append("[").append(paramAnnotation[i].toString()).append(":").append(paramType[i].toString()).append("], ");
-        }
+        for (int i = 0; i < paramAnnotation.length; i++)
+            sb.append("[").append(paramAnnotation[i].toString()).append(":").append(paramType[i].toString()).append("], ");        
 
         String s = sb.toString();
         if (sb.length() > 0) {

@@ -15,13 +15,13 @@ import at.jabberwocky.spi.SubdomainConfiguration;
 import at.jabberwocky.spi.XMPPComponent;
 import at.jabberwocky.spi.XMPPComponentException;
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.enterprise.concurrent.ManagedExecutorService;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.CDI;
-import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -64,7 +64,9 @@ public class JabberwockyServlet extends HttpServlet {
         SubdomainConfiguration config = xmppComponent.getConfiguration();
 
         JabberwockyComponentConnection connection;
-        ManagedExecutorService executor;
+        //ManagedExecutorService executor;
+        ExecutorService executor;
+        
         String name = config.getProperties()
                 .get(Configurables.EXECUTOR_SERVICE).getValue();
 
@@ -90,22 +92,22 @@ public class JabberwockyServlet extends HttpServlet {
         ctx.setAttribute(Constants.XMPP_COMPONENT_CONNECTION, connection);
 
         //Fire postConnect
-        if (logger.isLoggable(Level.FINE)) {
-            logger.log(Level.FINE, "Fire PostConnect event");
-        }
+        if (logger.isLoggable(Level.FINE))
+            logger.log(Level.FINE, "Fire PostConnect event");        
         CDIUtilities.fire(xmppComponent, config, ComponentLifecycleEvent.Phase.PostConnect, bm);
 
         //Start receiving packets
-        if (logger.isLoggable(Level.INFO)) {
-            logger.log(Level.INFO, "Starting XMPPComponent: {0}", config.getProperties().get(Configurables.XMPP_COMPONENT));
-        }
+        if (logger.isLoggable(Level.INFO))
+            logger.log(Level.INFO, "Starting XMPPComponent: {0}", config.getProperties().get(Configurables.XMPP_COMPONENT));        
 
-        try {
-            executor = (ManagedExecutorService) InitialContext.doLookup(name);
-        } catch (NamingException ex) {
-            logger.log(Level.SEVERE, "Cannot get executor service: " + name, ex);
-            return;
-        }
+        executor = Executors.newFixedThreadPool(3);
+        ctx.setAttribute(Constants.XMPP_EXECUTORS, executor);
+//        try {
+//            executor = (ManagedExecutorService) InitialContext.doLookup(name);            
+//        } catch (NamingException ex) {
+//            logger.log(Level.SEVERE, "Cannot get executor service: " + name, ex);
+//            return;
+//        }
 
         connection.start(executor, xmppComponent);
     }
@@ -151,6 +153,12 @@ public class JabberwockyServlet extends HttpServlet {
             logger.log(Level.FINE, "Fire PreDisconnect event");
         }
         CDIUtilities.fire(xmppComponent, config, ComponentLifecycleEvent.Phase.PostDisconnect, bm);
+        
+        if (logger.isLoggable(Level.INFO))
+            logger.log(Level.INFO, "Shutting down executors");
+        
+        ExecutorService executor = (ExecutorService)ctx.getAttribute(Constants.XMPP_EXECUTORS);
+        executor.shutdownNow();
 
         //Do I need to shutdown the service ?
         //Shutdown executor - only shutdown if it is not default service

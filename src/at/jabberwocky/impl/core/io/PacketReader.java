@@ -47,16 +47,16 @@ public class PacketReader implements Runnable {
     }
 
     @Override
-    public void run() {
+    public void run() {        
         if (logger.isLoggable(Level.INFO)) {
             logger.log(Level.INFO, "Starting PacketReader");
         }
         while (!stop.get()) {
             try {
-                Packet pkt = getPacket();
-                if (null == pkt) {
+                Packet pkt = getPacket();                
+                if (null == pkt)
                     continue;
-                }
+                
                 queue.write(pkt);
                 if (logger.isLoggable(Level.FINER)) {
                     logger.log(Level.FINER, ">>> Inbound: {0}" + pkt.toString());

@@ -70,7 +70,7 @@ public class JabberwockyComponentConnection implements Runnable, ManagedTask {
 
     private class KeepAlive implements Runnable {
 
-        private PacketWriter pktWriter;
+        private final PacketWriter pktWriter;
         private boolean stop = false;
         private final long sleep;
 
@@ -272,7 +272,7 @@ public class JabberwockyComponentConnection implements Runnable, ManagedTask {
         pktWriter = new PacketWriter(xmlWriter, writer, outQueue, Utility.property(props, Configurables.KEEP_ALIVE, 20000L));
 
         keepAliveThread = new KeepAlive(pktWriter, Utility.property(props, Configurables.KEEP_ALIVE, 20000L));
-
+        
         readerFuture = executorService.submit(pktReader);
         writerFuture = executorService.submit(pktWriter);
 

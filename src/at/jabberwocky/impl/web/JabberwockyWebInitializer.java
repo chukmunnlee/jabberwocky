@@ -76,9 +76,8 @@ public class JabberwockyWebInitializer implements ServletContainerInitializer {
         ctx.setAttribute(Constants.XMPP_COMPONENT_CONFIGURATION, config);        
         ctx.setAttribute(Constants.XMPP_CONNECTION_LOCK, new AtomicBoolean(false));
 
-        if (logger.isLoggable(Level.INFO)) {
-            logger.log(Level.INFO, "Configuring (0}", JabberwockyServlet.class.getName());
-        }
+        if (logger.isLoggable(Level.INFO))
+            logger.log(Level.INFO, "Configuring {0}", JabberwockyServlet.class.getName());        
 
         ServletRegistration.Dynamic jabberwockyServlet
                 = ctx.addServlet("JabberwockyServlet", JabberwockyServlet.class);
