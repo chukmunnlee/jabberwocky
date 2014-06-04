@@ -20,9 +20,11 @@ public class Configurables {
     public static final String COMPONENT_CATEGORY = "at.jabberwocky.component.category"; 
         
     public static final String EXECUTOR_SERVICE = "at.jabberwocky.executorService";
+	public static final String EXECUTOR_SERVICE_SIZE = "at.jabberwocky.executorService.size";
 
     public static final String IN_QUEUE = "at.jabberwocky.io.size.queue.in";
     public static final String OUT_QUEUE = "at.jabberwocky.io.size.queue.out";
+	
 
     public static final String KEEP_ALIVE = "at.jabberwocky.time.keepAlive";
 

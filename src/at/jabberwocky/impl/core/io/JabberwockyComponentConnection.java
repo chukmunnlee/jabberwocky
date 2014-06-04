@@ -265,8 +265,8 @@ public class JabberwockyComponentConnection implements Runnable, ManagedTask {
 
         xmppHolder = new AtomicReference<>(comp);
 
-        inQueue = new PacketQueue(Utility.property(props, Configurables.IN_QUEUE, 5), "In queue");
-        outQueue = new PacketQueue(Utility.property(props, Configurables.OUT_QUEUE, 5), "Out queue");
+        inQueue = new PacketQueue(Utility.property(props, Configurables.IN_QUEUE, 2), "In queue");
+        outQueue = new PacketQueue(Utility.property(props, Configurables.OUT_QUEUE, 2), "Out queue");
 
         pktReader = new PacketReader(xmlParser, reader, inQueue);
         pktWriter = new PacketWriter(xmlWriter, writer, outQueue, Utility.property(props, Configurables.KEEP_ALIVE, 20000L));

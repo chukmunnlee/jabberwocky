@@ -11,6 +11,7 @@ import static at.jabberwocky.api.Configurables.EXECUTOR_SERVICE;
 import at.jabberwocky.impl.core.Constants;
 import at.jabberwocky.impl.core.io.JabberwockyComponentConnection;
 import at.jabberwocky.impl.core.util.CDIUtilities;
+import at.jabberwocky.impl.core.util.Utility;
 import at.jabberwocky.spi.SubdomainConfiguration;
 import at.jabberwocky.spi.XMPPComponent;
 import at.jabberwocky.spi.XMPPComponentException;
@@ -99,8 +100,9 @@ public class JabberwockyServlet extends HttpServlet {
         //Start receiving packets
         if (logger.isLoggable(Level.INFO))
             logger.log(Level.INFO, "Starting XMPPComponent: {0}", config.getProperties().get(Configurables.XMPP_COMPONENT));        
-
-        executor = Executors.newFixedThreadPool(3);
+		
+        executor = Executors.newFixedThreadPool(Utility.property(
+				config.getProperties(), Configurables.EXECUTOR_SERVICE_SIZE, 4));
         ctx.setAttribute(Constants.XMPP_EXECUTORS, executor);
 //        try {
 //            executor = (ManagedExecutorService) InitialContext.doLookup(name);            
